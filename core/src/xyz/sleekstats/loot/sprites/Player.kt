@@ -2,11 +2,10 @@ package xyz.sleekstats.loot.sprites
 
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.physics.box2d.*
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.screens.PlayScreen
 
-class Player(var world: World, val playScreen: PlayScreen) : Sprite(playScreen.textureAtlas.findRegion("little_mario")) {
+class Player(val playScreen: PlayScreen) : Sprite(playScreen.textureAtlas.findRegion("little_mario")) {
 
     private var playerImg = TextureRegion(playScreen.textureAtlas.findRegion("little_mario"),
             0, 0, 16, 16)
