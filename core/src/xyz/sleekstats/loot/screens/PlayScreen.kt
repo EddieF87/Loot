@@ -28,6 +28,7 @@ class PlayScreen(val game: LootGame) : Screen {
     val bg = Texture("bg.png")
     private val topHud = TopHud(game.batch)
     private val bottomHud = BottomHud(game.batch)
+    private var roundNumber = 1
 
     init {
         println("playScreen width = ${viewport.worldWidth} height = ${viewport.worldHeight} ")
@@ -69,9 +70,14 @@ class PlayScreen(val game: LootGame) : Screen {
         }
 
         if (Gdx.input.justTouched() && trainScheduler.trainArrived) {
-//            players.forEach { it.transformPlayer() }
-            trainScheduler.reset()
+            nextRound()
         }
+    }
+
+    fun nextRound() {
+        trainScheduler.reset()
+        roundNumber++
+        topHud.updateRound(roundNumber)
     }
 
     fun update(dt: Float) {
