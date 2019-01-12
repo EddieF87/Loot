@@ -83,11 +83,18 @@ class BottomHud(sb : SpriteBatch) : Disposable {
         player4TotalScoreLabel.setWrap(true)
     }
 
-    fun updatePlayerScores(players: Array<Player>) {
-        player1TotalScoreLabel.setText(String.format("%05d", (players[0].score * 10).roundToInt()))
-        player2TotalScoreLabel.setText(String.format("%05d", (players[1].score * 10).roundToInt()))
-        player3TotalScoreLabel.setText(String.format("%05d", (players[2].score * 10).roundToInt()))
-        player4TotalScoreLabel.setText(String.format("%05d", (players[3].score * 10).roundToInt()))
+    fun updatePlayerTotalScores(players: Array<Player>) {
+        player1TotalScoreLabel.setText(String.format("%05d", (players[0].totalScore * 10).roundToInt()))
+        player2TotalScoreLabel.setText(String.format("%05d", (players[1].totalScore * 10).roundToInt()))
+        player3TotalScoreLabel.setText(String.format("%05d", (players[2].totalScore * 10).roundToInt()))
+        player4TotalScoreLabel.setText(String.format("%05d", (players[3].totalScore * 10).roundToInt()))
+    }
+
+    fun updatePlayerRoundScores(players: Array<Player>) {
+        player1RoundScoreLabel.setText(String.format("%04d", (players[0].roundScore * 10).roundToInt()))
+        player2RoundScoreLabel.setText(String.format("%04d", (players[1].roundScore * 10).roundToInt()))
+        player3RoundScoreLabel.setText(String.format("%04d", (players[2].roundScore * 10).roundToInt()))
+        player4RoundScoreLabel.setText(String.format("%04d", (players[3].roundScore * 10).roundToInt()))
     }
 
     override fun dispose() {

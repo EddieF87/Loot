@@ -9,6 +9,7 @@ import kotlin.math.roundToInt
 class TrainScheduler(val playScreen: PlayScreen, var probabilityOfArrivingOutOf10000: Int) {
 
     var trainArrived = false
+    var totalScoresUpdated = false
     val trains = Array<Train>()
 
     fun update(dt: Float): Boolean {
@@ -50,6 +51,7 @@ class TrainScheduler(val playScreen: PlayScreen, var probabilityOfArrivingOutOf1
     fun reset() {
         trains.clear()
         trainArrived = false
+        totalScoresUpdated = false
     }
 
 }

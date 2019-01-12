@@ -59,13 +59,13 @@ class PlayScreen(val game: LootGame) : Screen {
     }
 
     fun handleInput(dt: Float) {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             players[0].transformPlayer()
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             players[1].transformPlayer()
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
             players[2].transformPlayer()
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
             players[3].transformPlayer()
         }
 
@@ -91,16 +91,34 @@ class PlayScreen(val game: LootGame) : Screen {
 
         topHud.updateTimePct(dt)
         trainScheduler.update(dt)
+
+        if (trainScheduler.trainArrived) {
+            players.forEach {
+                if (!it.totalScoreUpdated) {
+                    it.updateTotalScore()
+                }
+            }
+            if(!trainScheduler.totalScoresUpdated) {
+                trainScheduler.totalScoresUpdated = true
+                bottomHud.updatePlayerTotalScores(players)
+            }
+        } else {
+            players.forEach {
+                it.update(dt)
+            }
+        }
+
         players.forEach {
             if (trainScheduler.trainArrived) {
-                if (it.isCollecting) {
+                if (!it.totalScoreUpdated) {
                     topHud.fffff(dt)
+                    it.totalScoreUpdated = true
                 }
             } else {
                 it.update(dt)
             }
         }
-        bottomHud.updatePlayerScores(players)
+        bottomHud.updatePlayerRoundScores(players)
 
         camera.update()
     }

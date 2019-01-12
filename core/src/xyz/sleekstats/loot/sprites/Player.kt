@@ -2,7 +2,6 @@ package xyz.sleekstats.loot.sprites
 
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.sun.awt.SecurityWarning.setPosition
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.screens.PlayScreen
 
@@ -13,8 +12,9 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
     private var playerImg2 = TextureRegion(playScreen.textureAtlas.findRegion("goomba"),
             0, 0, 16, 16)
     var isCollecting = false
+    var totalScoreUpdated = false
     val posX = (playScreen.viewport.worldWidth / 5) * number - 8
-    var score = 0F
+    var roundScore = 0F
     var totalScore = 0F
 
     init {
@@ -24,9 +24,16 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
 
     fun update(dt: Float) {
         if(isCollecting) {
-            score += dt
-            totalScore += dt
+            roundScore += dt
         }
+    }
+
+    fun updateTotalScore() {
+        if(!isCollecting) {
+            totalScore += roundScore
+        }
+        roundScore = 0F
+        totalScoreUpdated = true
     }
 
     fun transformPlayer() {
@@ -39,6 +46,7 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
 
     fun reset() {
         setNotCollecting()
+        totalScoreUpdated = false
     }
 
     fun setCollecting() {
