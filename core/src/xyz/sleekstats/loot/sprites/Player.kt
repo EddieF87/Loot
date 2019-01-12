@@ -5,17 +5,17 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.screens.PlayScreen
 
-class Player(val playScreen: PlayScreen) : Sprite(playScreen.textureAtlas.findRegion("little_mario")) {
+class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textureAtlas.findRegion("little_mario")) {
 
     private var playerImg = TextureRegion(playScreen.textureAtlas.findRegion("little_mario"),
             0, 0, 16, 16)
     private var playerImg2 = TextureRegion(playScreen.textureAtlas.findRegion("goomba"),
             0, 0, 16, 16)
     var isCollecting = false
+    val posX = (playScreen.viewport.worldWidth / 5) * number - 8
 
     init {
-        println("width = ${playScreen.viewport.worldWidth} height = ${playScreen.viewport.worldHeight} ")
-        setBounds(playScreen.viewport.worldWidth / 2, playScreen.viewport.worldHeight / 4, 16F, 16F)
+        setBounds(posX , playScreen.viewport.worldHeight / 4 -8, 16F, 16F)
         setRegion(playerImg)
     }
 
@@ -25,13 +25,24 @@ class Player(val playScreen: PlayScreen) : Sprite(playScreen.textureAtlas.findRe
 
     fun transformPlayer() {
         if(isCollecting) {
-            isCollecting = false
-            setRegion(playerImg)
-            setPosition(LootGame.V_WIDTH /2, LootGame.V_HEIGHT /4)
+            setNotCollecting()
         } else {
-            isCollecting = true
-            setRegion(playerImg2)
-            setPosition(LootGame.V_WIDTH /2, LootGame.V_HEIGHT /2)
+            setCollecting()
         }
+    }
+
+    fun reset() {
+        setNotCollecting()
+    }
+
+    fun setCollecting() {
+        isCollecting = true
+        setRegion(playerImg2)
+        setPosition(posX, LootGame.V_HEIGHT /2 - height/2)
+    }
+    fun setNotCollecting() {
+        isCollecting = false
+        setRegion(playerImg)
+        setPosition(posX, LootGame.V_HEIGHT /4 - height/2)
     }
 }
