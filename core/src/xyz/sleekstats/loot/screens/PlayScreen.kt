@@ -1,6 +1,7 @@
 package xyz.sleekstats.loot.screens
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -21,14 +22,12 @@ class PlayScreen(val game: LootGame) : Screen {
     val batch = game.batch
     val textureAtlas = TextureAtlas("Mario_and_Enemies.pack.txt")
     val world = World(Vector2(0F, 0F), true)
-    //    val player1 = Player(this)
-//    val player2 = Player(this)
-    //    val player3 = Player(this)
-//    val player4 = Player(this)
+
     val players = Array<Player>()
     val trainScheduler = TrainScheduler(this, 10)
     val bg = Texture("bg.png")
     private val topHud = TopHud(game.batch)
+    private val bottomHud = BottomHud(game.batch)
 
     init {
         println("playScreen width = ${viewport.worldWidth} height = ${viewport.worldHeight} ")
@@ -53,13 +52,24 @@ class PlayScreen(val game: LootGame) : Screen {
         trainScheduler.drawTrains(batch)
         batch.end()
 
-        game.batch.projectionMatrix = topHud.stage.camera.combined
+//        game.batch.projectionMatrix = topHud.stage.camera.combined
         topHud.stage.draw()
+        bottomHud.stage.draw()
     }
 
     fun handleInput(dt: Float) {
-        if (Gdx.input.justTouched()) {
-            players.forEach { it.transformPlayer() }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            players[0].transformPlayer()
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            players[1].transformPlayer()
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+            players[2].transformPlayer()
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+            players[3].transformPlayer()
+        }
+
+        if (Gdx.input.justTouched() && trainScheduler.trainArrived) {
+//            players.forEach { it.transformPlayer() }
             trainScheduler.reset()
         }
     }
@@ -72,7 +82,6 @@ class PlayScreen(val game: LootGame) : Screen {
             return
         }
         world.step(1 / 60F, 6, 2)
-        players.forEach { it.update(dt) }
 
         topHud.updateTimePct(dt)
         trainScheduler.update(dt)
@@ -80,13 +89,13 @@ class PlayScreen(val game: LootGame) : Screen {
             if (trainScheduler.trainArrived) {
                 if (it.isCollecting) {
                     topHud.fffff(dt)
-                } else {
-                    println("player okay!")
                 }
-            } else if (it.isCollecting) {
-                topHud.update(dt)
+            } else {
+                it.update(dt)
             }
         }
+        bottomHud.updatePlayerScores(players)
+
         camera.update()
     }
 

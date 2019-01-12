@@ -59,7 +59,6 @@ class TopHud (sb : SpriteBatch) : Disposable {
     fun updateTimePct(dt: Float) {
         time += dt
 
-//        timeLabel.setText(String.format("000000"))
         timeLabel.setText(String.format("%06d", (time * 10).roundToInt()))
 //        pctLabel.setText(String.format("%02d", pct))
     }
