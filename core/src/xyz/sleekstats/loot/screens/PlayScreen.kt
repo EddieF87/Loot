@@ -136,5 +136,4 @@ class PlayScreen(val game: LootGame) : Screen {
     }
 
     override fun dispose() {}
-
 }

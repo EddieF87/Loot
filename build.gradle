@@ -3,7 +3,7 @@ buildscript {
 
     repositories {
         mavenLocal()
-        mavenCentral()
+        jcenter()
         maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         jcenter()
@@ -23,7 +23,7 @@ allprojects {
 
     version = '1.0'
     ext {
-        appName = "my-loot-game"
+        appName = "Loot!"
         gdxVersion = '1.9.9'
         roboVMVersion = '2.3.5'
         box2DLightsVersion = '1.4'
@@ -33,7 +33,7 @@ allprojects {
 
     repositories {
         mavenLocal()
-        mavenCentral()
+        jcenter()
         google()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
@@ -74,7 +74,11 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
         implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+        implementation 'com.google.android.gms:play-services-games:16.0.0'
+        implementation "com.google.android.gms:play-services-auth:16.0.1"
     }
+
 }
 
 project(":ios") {
