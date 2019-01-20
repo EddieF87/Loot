@@ -2,13 +2,14 @@ package xyz.sleekstats.loot
 
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import sun.rmi.runtime.Log
 import xyz.sleekstats.loot.screens.PlayScreen
 import xyz.sleekstats.loot.screens.WelcomeScreen
 
-class LootGame : Game() {
+class LootGame(val mOnGameListener: OnGameListener) : Game() {
     internal lateinit var batch: SpriteBatch
 
-    private var mOnGameListener: OnGameListener? = null
+//    private var mOnGameListener: OnGameListener? = null
 
     override fun create() {
         batch = SpriteBatch()
@@ -24,17 +25,27 @@ class LootGame : Game() {
         const val V_HEIGHT = 512F
     }
 
-    fun test() {
-        println("TETSTTSTT")
-    }
-
-    fun setGameListener(onGameListener: OnGameListener) {
-        this.mOnGameListener = onGameListener
-    }
-
     interface OnGameListener {
         fun onClick(id: Int)
         fun signOut()
+        fun acceptInviteToRoom(mIncomingInvitationId: String);
+        fun startQuickGame();
+    }
 
+    fun switchWaitScreen(){
+        println("switchScreen")
+    }
+    fun switchMainScreen(){
+        println("switchScreen")
+    }
+    fun switchSignInScreen(){
+        println("switchScreen")
+    }
+    fun switchGameScreen(){
+        println("switchScreen")
+    }
+
+    fun onStartClick() {
+        mOnGameListener.startQuickGame()
     }
 }

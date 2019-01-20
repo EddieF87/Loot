@@ -4,15 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.TextView;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -45,13 +40,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import xyz.sleekstats.loot.LootGame;
 
 public class AndroidLauncher extends AndroidApplication implements LootGame.OnGameListener {
 
@@ -60,7 +49,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
      * the game with the Google Play game services API.
      */
 
-    final static String TAG = "ButtonClicker2000";
+    final static String TAG = "LootTAG";
 
     // Request codes for the UIs that we show with startActivityForResult:
     final static int RC_SELECT_PLAYERS = 10000;
@@ -86,9 +75,6 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     // Holds the configuration of the current room.
     RoomConfig mRoomConfig;
 
-    // Are we playing in multiplayer mode?
-    boolean mMultiplayer = false;
-
     // The participants in the currently active game
     ArrayList<Participant> mParticipants = null;
 
@@ -104,68 +90,20 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
 
     private LootGame mGame;
 
+    enum Screen {GAME, WAIT, MAIN, SIGN_IN}
 
+    private Screen mCurScreen;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-        mGame = new LootGame();
+        mGame = new LootGame(this);
         initialize(mGame, config);
-        mGame.test();
         mGoogleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN);
-        Log.d("ddd", "g " + mGoogleSignInClient.toString());
         startSignInIntent();
-    }
-
-
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//
-//        // Create the client used to sign in.
-//        mGoogleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN);
-//
-//        // set up a click listener for everything we care about
-//        for (int id : CLICKABLES) {
-//            findViewById(id).setOnClickListener(this);
-//        }
-//
-//        switchToMainScreen();
-//        checkPlaceholderIds();
-//    }
-
-    // Check the sample to ensure all placeholder ids are are updated with real-world values.
-    // This is strictly for the purpose of the samples; you don't need this in a production
-    // application.
-    private void checkPlaceholderIds() {
-        StringBuilder problems = new StringBuilder();
-
-        if (getPackageName().startsWith("com.google.")) {
-            problems.append("- Package name start with com.google.*\n");
-        }
-
-        for (Integer id : new Integer[]{R.string.app_id}) {
-
-            String value = getString(id);
-
-            if (value.startsWith("YOUR_")) {
-                // needs replacing
-                problems.append("- Placeholders(YOUR_*) in ids.xml need updating\n");
-                break;
-            }
-        }
-
-        if (problems.length() > 0) {
-            problems.insert(0, "The following problems were found:\n\n");
-
-            problems.append("\nThese problems may prevent the app from working properly.");
-            problems.append("\n\nSee the TODO window in Android Studio for more information");
-            (new AlertDialog.Builder(this)).setMessage(problems.toString())
-                    .setNeutralButton(android.R.string.ok, null).create().show();
-        }
+        keepScreenOn();
     }
 
     @Override
@@ -188,78 +126,18 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         }
     }
 
-    //   TODO:    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-//            case R.id.button_single_player:
-//            case R.id.button_single_player_2:
-//                // play a single-player game
-//                resetGameVars();
-//                startGame(false);
-//                break;
-//            case R.id.button_sign_in:
-//                // start the sign-in flow
-//                Log.d(TAG, "Sign-in button clicked");
-//                startSignInIntent();
-//                break;
-//            case R.id.button_sign_out:
-//                // user wants to sign out
-//                // sign out.
-//                Log.d(TAG, "Sign-out button clicked");
-//                signOut();
-//                switchToScreen(R.id.screen_sign_in);
-//                break;
-//            case R.id.button_invite_players:
-//                switchToScreen(R.id.screen_wait);
-//
-//                // show list of invitable players
-//                mRealTimeMultiplayerClient.getSelectOpponentsIntent(1, 3).addOnSuccessListener(
-//                        new OnSuccessListener<Intent>() {
-//                            @Override
-//                            public void onSuccess(Intent intent) {
-//                                startActivityForResult(intent, RC_SELECT_PLAYERS);
-//                            }
-//                        }
-//                ).addOnFailureListener(createFailureListener("There was a problem selecting opponents."));
-//                break;
-//            case R.id.button_see_invitations:
-//                switchToScreen(R.id.screen_wait);
-//
-//                // show list of pending invitations
-//                mInvitationsClient.getInvitationInboxIntent().addOnSuccessListener(
-//                        new OnSuccessListener<Intent>() {
-//                            @Override
-//                            public void onSuccess(Intent intent) {
-//                                startActivityForResult(intent, RC_INVITATION_INBOX);
-//                            }
-//                        }
-//                ).addOnFailureListener(createFailureListener("There was a problem getting the inbox."));
-//                break;
-//            case R.id.button_accept_popup_invitation:
-//                // user wants to accept the invitation shown on the invitation popup
-//                // (the one we got through the OnInvitationReceivedListener).
-//                acceptInviteToRoom(mIncomingInvitationId);
-//                mIncomingInvitationId = null;
-//                break;
-//            case R.id.button_quick_game:
-//                // user wants to play against a random opponent right now
-//                startQuickGame();
-//                break;
-//            case R.id.button_click_me:
-//                // (gameplay) user clicked the "click me" button
-//                scoreOnePoint();
-//                break;
-        }
-    }
 
-    void startQuickGame() {
+    @Override
+    public void startQuickGame() {
         // quick-start a game with 1 randomly selected opponent
-        final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
+        final int MIN_OPPONENTS = 3, MAX_OPPONENTS = 3;
         Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
                 MAX_OPPONENTS, 0);
-        //   TODO:      switchToScreen(R.id.screen_wait);
+
+        mGame.switchWaitScreen();
+        mCurScreen = Screen.WAIT;
+
         keepScreenOn();
-        resetGameVars();
 
         mRoomConfig = RoomConfig.builder(mRoomUpdateCallback)
                 .setOnMessageReceivedListener(mOnRealTimeMessageReceivedListener)
@@ -269,19 +147,12 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         mRealTimeMultiplayerClient.create(mRoomConfig);
     }
 
-    /**
-     * Start a sign in activity.  To properly handle the result, call tryHandleSignInResult from
-     * your Activity's onActivityResult function
-     */
+
     public void startSignInIntent() {
         startActivityForResult(mGoogleSignInClient.getSignInIntent(), RC_SIGN_IN);
     }
 
-    /**
-     * Try to sign in without displaying dialogs to the user.
-     * <p>
-     * If the user has already signed in previously, it will not show dialog.
-     */
+
     public void signInSilently() {
         Log.d(TAG, "signInSilently()");
 
@@ -412,7 +283,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
             if (resultCode == Activity.RESULT_OK) {
                 // ready to start playing
                 Log.d(TAG, "Starting game (waiting room returned OK).");
-                startGame(true);
+//                startGame();
             } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
                 // player indicated that they want to leave the room
                 leaveRoom();
@@ -454,9 +325,10 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
 
         // create the room
         Log.d(TAG, "Creating room...");
-        //   TODO:       switchToScreen(R.id.screen_wait);
+        mGame.switchWaitScreen();
+        mCurScreen = Screen.WAIT;
+
         keepScreenOn();
-        resetGameVars();
 
         mRoomConfig = RoomConfig.builder(mRoomUpdateCallback)
                 .addPlayersToInvite(invitees)
@@ -485,8 +357,18 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         }
     }
 
+    OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
+        @Override
+        public void onRealTimeMessageReceived(@NonNull RealTimeMessage realTimeMessage) {
+            byte[] buf = realTimeMessage.getMessageData();
+            String sender = realTimeMessage.getSenderParticipantId();
+            Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
+        }
+    };
+
     // Accept the given invitation.
-    void acceptInviteToRoom(String invitationId) {
+    @Override
+    public void acceptInviteToRoom(String invitationId) {
         // accept the invitation
         Log.d(TAG, "Accepting invitation: " + invitationId);
 
@@ -496,9 +378,10 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
                 .setRoomStatusUpdateCallback(mRoomStatusUpdateCallback)
                 .build();
 
-        //   TODO:    switchToScreen(R.id.screen_wait);
+        mGame.switchWaitScreen();
+        mCurScreen = Screen.WAIT;
+
         keepScreenOn();
-        resetGameVars();
 
         mRealTimeMultiplayerClient.join(mRoomConfig)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -513,32 +396,25 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     @Override
     public void onStop() {
         Log.d(TAG, "**** got onStop");
-
-        // if we're in a room, leave it.
         leaveRoom();
-
-        // stop trying to keep the screen on
         stopKeepingScreenOn();
-
         switchToMainScreen();
-
         super.onStop();
     }
 
     // Handle back key to make sure we cleanly leave a game if we are in the middle of one
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent e) {
-        //   TODO:  if (keyCode == KeyEvent.KEYCODE_BACK && mCurScreen == R.id.screen_game) {
-//            leaveRoom();
-//            return true;
-//        }
+        if (keyCode == KeyEvent.KEYCODE_BACK && mCurScreen == Screen.GAME) {
+            leaveRoom();
+            return true;
+        }
         return super.onKeyDown(keyCode, e);
     }
 
     // Leave the room.
     void leaveRoom() {
         Log.d(TAG, "Leaving room.");
-        mSecondsLeft = 0;
         stopKeepingScreenOn();
         if (mRoomId != null) {
             mRealTimeMultiplayerClient.leave(mRoomConfig, mRoomId)
@@ -549,7 +425,9 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
                             mRoomConfig = null;
                         }
                     });
-            //   TODO: switchToScreen(R.id.screen_wait);
+            mGame.switchWaitScreen();
+            mCurScreen = Screen.WAIT;
+
         } else {
             switchToMainScreen();
         }
@@ -577,14 +455,13 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         // Called when we get an invitation to play a game. We react by showing that to the user.
         @Override
         public void onInvitationReceived(@NonNull Invitation invitation) {
-            // We got an invitation to play a game! So, store it in
-            // mIncomingInvitationId
-            // and show the popup on the screen.
+
             mIncomingInvitationId = invitation.getInvitationId();
             //   TODO:     ((TextView) findViewById(R.id.incoming_invitation_text)).setText(
 //                    invitation.getInviter().getDisplayName() + " " +
 //                            getString(R.string.is_inviting_you));
-            switchToScreen(mCurScreen); // This will show the invitation popup
+
+            Log.d(TAG, "show popup!  " + invitation.getInviter().getDisplayName());
         }
 
         @Override
@@ -592,7 +469,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
 
             if (mIncomingInvitationId.equals(invitationId) && mIncomingInvitationId != null) {
                 mIncomingInvitationId = null;
-                switchToScreen(mCurScreen); // This will hide the invitation popup
+                Log.d(TAG, "DON'T show popup. " );
             }
         }
     };
@@ -610,6 +487,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     private void onConnected(GoogleSignInAccount googleSignInAccount) {
         Log.d(TAG, "onConnected(): connected to Google APIs");
         if (mSignedInAccount != googleSignInAccount) {
+            Log.d(TAG, "SignedInAccount != googleSignInAccount");
 
             mSignedInAccount = googleSignInAccount;
 
@@ -700,6 +578,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         // Called when we get disconnected from the room. We return to the main screen.
         @Override
         public void onDisconnectedFromRoom(Room room) {
+            Log.d(TAG, "onDisconnectedFromRoom.");
             mRoomId = null;
             mRoomConfig = null;
             showGameError();
@@ -714,49 +593,36 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         public void onPeerDeclined(Room room, @NonNull List<String> arg1) {
             updateRoom(room);
         }
-
         @Override
         public void onPeerInvitedToRoom(Room room, @NonNull List<String> arg1) {
             updateRoom(room);
         }
-
         @Override
-        public void onP2PDisconnected(@NonNull String participant) {
-        }
-
+        public void onP2PDisconnected(@NonNull String participant) { }
         @Override
-        public void onP2PConnected(@NonNull String participant) {
-        }
-
+        public void onP2PConnected(@NonNull String participant) { }
         @Override
         public void onPeerJoined(Room room, @NonNull List<String> arg1) {
             updateRoom(room);
         }
-
         @Override
         public void onPeerLeft(Room room, @NonNull List<String> peersWhoLeft) {
             updateRoom(room);
         }
-
         @Override
         public void onRoomAutoMatching(Room room) {
             updateRoom(room);
         }
-
         @Override
         public void onRoomConnecting(Room room) {
             updateRoom(room);
         }
-
         @Override
         public void onPeersConnected(Room room, @NonNull List<String> peers) {
             updateRoom(room);
         }
-
         @Override
-        public void onPeersDisconnected(Room room, @NonNull List<String> peers) {
-            updateRoom(room);
-        }
+        public void onPeersDisconnected(Room room, @NonNull List<String> peers) { updateRoom(room); }
     };
 
     // Show error message about game being cancelled and return to main screen.
@@ -823,295 +689,36 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     };
 
     void updateRoom(Room room) {
+        Log.d(TAG, "updateRoom");
         if (room != null) {
             mParticipants = room.getParticipants();
         }
         if (mParticipants != null) {
-            updatePeerScoresDisplay();
+            Log.d(TAG, "updateRoom mParticipants != null");
+//            updatePeerScoresDisplay();
         }
-    }
-
-    /*
-     * GAME LOGIC SECTION. Methods that implement the game's rules.
-     */
-
-    // Current state of the game:
-    int mSecondsLeft = -1; // how long until the game ends (seconds)
-    final static int GAME_DURATION = 20; // game duration, seconds.
-    int mScore = 0; // user's current score
-
-    // Reset game variables in preparation for a new game.
-    void resetGameVars() {
-        mSecondsLeft = GAME_DURATION;
-        mScore = 0;
-        mParticipantScore.clear();
-        mFinishedParticipants.clear();
-    }
-
-    // Start the gameplay phase of the game.
-    void startGame(boolean multiplayer) {
-        mMultiplayer = multiplayer;
-        updateScoreDisplay();
-        broadcastScore(false);
-        //   TODO:     switchToScreen(R.id.screen_game);
-
-        //   TODO:  findViewById(R.id.button_click_me).setVisibility(View.VISIBLE);
-
-        // run the gameTick() method every second to update the game.
-        final Handler h = new Handler();
-        h.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mSecondsLeft <= 0) {
-                    return;
-                }
-                gameTick();
-                h.postDelayed(this, 1000);
-            }
-        }, 1000);
-    }
-
-    // Game tick -- update countdown, check if game ended.
-    void gameTick() {
-        if (mSecondsLeft > 0) {
-            --mSecondsLeft;
-        }
-
-        // update countdown
-        //   TODO:  ((TextView) findViewById(R.id.countdown)).setText("0:" +
-//                (mSecondsLeft < 10 ? "0" : "") + String.valueOf(mSecondsLeft));
-
-        if (mSecondsLeft <= 0) {
-            // finish game
-            //   TODO:   findViewById(R.id.button_click_me).setVisibility(View.GONE);
-            broadcastScore(true);
-        }
-    }
-
-    // indicates the player scored one point
-    void scoreOnePoint() {
-        if (mSecondsLeft <= 0) {
-            return; // too late!
-        }
-        ++mScore;
-        updateScoreDisplay();
-        updatePeerScoresDisplay();
-
-        // broadcast our new score to our peers
-        broadcastScore(false);
-    }
-
-    /*
-     * COMMUNICATIONS SECTION. Methods that implement the game's network
-     * protocol.
-     */
-
-    // Score of other participants. We update this as we receive their scores
-    // from the network.
-    Map<String, Integer> mParticipantScore = new HashMap<>();
-
-    // Participants who sent us their final score.
-    Set<String> mFinishedParticipants = new HashSet<>();
-
-    // Called when we receive a real-time message from the network.
-    // Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'
-    // indicating
-    // whether it's a final or interim score. The second byte is the score.
-    // There is also the
-    // 'S' message, which indicates that the game should start.
-    OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
-        @Override
-        public void onRealTimeMessageReceived(@NonNull RealTimeMessage realTimeMessage) {
-            byte[] buf = realTimeMessage.getMessageData();
-            String sender = realTimeMessage.getSenderParticipantId();
-            Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
-
-            if (buf[0] == 'F' || buf[0] == 'U') {
-                // score update.
-                int existingScore = mParticipantScore.containsKey(sender) ?
-                        mParticipantScore.get(sender) : 0;
-                int thisScore = (int) buf[1];
-                if (thisScore > existingScore) {
-                    // this check is necessary because packets may arrive out of
-                    // order, so we
-                    // should only ever consider the highest score we received, as
-                    // we know in our
-                    // game there is no way to lose points. If there was a way to
-                    // lose points,
-                    // we'd have to add a "serial number" to the packet.
-                    mParticipantScore.put(sender, thisScore);
-                }
-
-                // update the scores on the screen
-                updatePeerScoresDisplay();
-
-                // if it's a final score, mark this participant as having finished
-                // the game
-                if ((char) buf[0] == 'F') {
-                    mFinishedParticipants.add(realTimeMessage.getSenderParticipantId());
-                }
-            }
-        }
-    };
-
-    // Broadcast my score to everybody else.
-    void broadcastScore(boolean finalScore) {
-        if (!mMultiplayer) {
-            // playing single-player mode
-            return;
-        }
-
-        // First byte in message indicates whether it's a final score or not
-        mMsgBuf[0] = (byte) (finalScore ? 'F' : 'U');
-
-        // Second byte is the score.
-        mMsgBuf[1] = (byte) mScore;
-
-        // Send to every other participant.
-        for (Participant p : mParticipants) {
-            if (p.getParticipantId().equals(mMyId)) {
-                continue;
-            }
-            if (p.getStatus() != Participant.STATUS_JOINED) {
-                continue;
-            }
-            if (finalScore) {
-                // final score notification must be sent via reliable message
-                mRealTimeMultiplayerClient.sendReliableMessage(mMsgBuf,
-                        mRoomId, p.getParticipantId(), new RealTimeMultiplayerClient.ReliableMessageSentCallback() {
-                            @Override
-                            public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId) {
-                                Log.d(TAG, "RealTime message sent");
-                                Log.d(TAG, "  statusCode: " + statusCode);
-                                Log.d(TAG, "  tokenId: " + tokenId);
-                                Log.d(TAG, "  recipientParticipantId: " + recipientParticipantId);
-                            }
-                        })
-                        .addOnSuccessListener(new OnSuccessListener<Integer>() {
-                            @Override
-                            public void onSuccess(Integer tokenId) {
-                                Log.d(TAG, "Created a reliable message with tokenId: " + tokenId);
-                            }
-                        });
-            } else {
-                // it's an interim score notification, so we can use unreliable
-                mRealTimeMultiplayerClient.sendUnreliableMessage(mMsgBuf, mRoomId,
-                        p.getParticipantId());
-            }
-        }
-    }
-
-    /*
-     * UI SECTION. Methods that implement the game's UI.
-     */
-
-    // This array lists everything that's clickable, so we can install click
-    // event handlers.
-    final static int[] CLICKABLES = {
-//   TODO:           R.id.button_accept_popup_invitation, R.id.button_invite_players,
-//            R.id.button_quick_game, R.id.button_see_invitations, R.id.button_sign_in,
-//            R.id.button_sign_out, R.id.button_click_me, R.id.button_single_player,
-//            R.id.button_single_player_2
-    };
-
-    // This array lists all the individual screens our game has.
-    final static int[] SCREENS = {
-//   TODO:            R.id.screen_game, R.id.screen_main, R.id.screen_sign_in,
-//            R.id.screen_wait
-    };
-    int mCurScreen = -1;
-
-    void switchToScreen(int screenId) {
-        // make the requested screen visible; hide all others.
-        for (int id : SCREENS) {
-            findViewById(id).setVisibility(screenId == id ? View.VISIBLE : View.GONE);
-        }
-        mCurScreen = screenId;
-
-        // should we show the invitation popup?
-        boolean showInvPopup;
-        if (mIncomingInvitationId == null) {
-            // no invitation, so no popup
-            showInvPopup = false;
-        } else if (mMultiplayer) {
-            // if in multiplayer, only show invitation on main screen
-            //   TODO:        showInvPopup = (mCurScreen == R.id.screen_main);
-        } else {
-            // single-player: show on main screen and gameplay screen
-            //   TODO:         showInvPopup = (mCurScreen == R.id.screen_main || mCurScreen == R.id.screen_game);
-        }
-//   TODO:        findViewById(R.id.invitation_popup).setVisibility(showInvPopup ? View.VISIBLE : View.GONE);
     }
 
     void switchToMainScreen() {
         if (mRealTimeMultiplayerClient != null) {
-            //   TODO:          switchToScreen(R.id.screen_main);
+            mGame.switchMainScreen();
+            mCurScreen = Screen.MAIN;
         } else {
-            //   TODO:           switchToScreen(R.id.screen_sign_in);
+            mGame.switchMainScreen();
+            mCurScreen = Screen.SIGN_IN;
         }
     }
 
-    // updates the label that shows my score
-    void updateScoreDisplay() {
-//   TODO:     ((TextView) findViewById(R.id.my_score)).setText(formatScore(mScore));
-    }
 
-    // formats a score as a three-digit number
-    String formatScore(int i) {
-        if (i < 0) {
-            i = 0;
-        }
-        String s = String.valueOf(i);
-        return s.length() == 1 ? "00" + s : s.length() == 2 ? "0" + s : s;
-    }
-
-    // updates the screen with the scores from our peers
-    void updatePeerScoresDisplay() {
-// TODO:       ((TextView) findViewById(R.id.score0)).setText(
-//                getString(R.string.score_label, formatScore(mScore)));
-//        int[] arr = {
-//                R.id.score1, R.id.score2, R.id.score3
-//        };
-        int i = 0;
-
-        if (mRoomId != null) {
-            for (Participant p : mParticipants) {
-                String pid = p.getParticipantId();
-                if (pid.equals(mMyId)) {
-                    continue;
-                }
-                if (p.getStatus() != Participant.STATUS_JOINED) {
-                    continue;
-                }
-                int score = mParticipantScore.containsKey(pid) ? mParticipantScore.get(pid) : 0;
-// TODO:                ((TextView) findViewById(arr[i])).setText(formatScore(score) + " - " +
-//                        p.getDisplayName());
-                ++i;
-            }
-        }
-
-// TODO:       for (; i < arr.length; ++i) {
-//            ((TextView) findViewById(arr[i])).setText("");
-//        }
-    }
-
-    /*
-     * MISC SECTION. Miscellaneous methods.
-     */
-
-
-    // Sets the flag to keep this screen on. It's recommended to do that during
-    // the
-    // handshake when setting up a game, because if the screen turns off, the
-    // game will be
-    // cancelled.
     void keepScreenOn() {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Log.d(TAG, "keepScreenOn");
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     // Clears the flag that keeps the screen on.
     void stopKeepingScreenOn() {
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Log.d(TAG, "stopKeepingScreenOn");
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override

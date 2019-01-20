@@ -45,8 +45,10 @@ class WelcomeScreen(val game: LootGame) : Screen {
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 println("Button Pressed")
-                game.screen = PlayScreen(game)
-                dispose()
+                game.onStartClick()
+
+//                game.screen = PlayScreen(game)
+//                dispose()
             }
         })
         stage.addActor(button)
@@ -59,9 +61,6 @@ class WelcomeScreen(val game: LootGame) : Screen {
     fun handleInput(dt: Float) {
         if (Gdx.input.justTouched()) {
             println("handleInput")
-
-//            game.screen = PlayScreen(game)
-//            dispose()
         }
     }
 
