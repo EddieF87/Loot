@@ -47,11 +47,19 @@ class WelcomeScreen(val game: LootGame) : Screen {
                 println("Button Pressed")
                 game.onStartClick()
 
-//                game.screen = PlayScreen(game)
-//                dispose()
+//                game.switchGameScreen()
+                Gdx.input.inputProcessor = null
+                game.poop()
+                dispose()
             }
         })
         stage.addActor(button)
+    }
+
+    fun poop(){
+//        Gdx.app.log("loottagg", "poop")
+//        game.screen = PlayScreen(game)
+//        dispose()
     }
 
     init {

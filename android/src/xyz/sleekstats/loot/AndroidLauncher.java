@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
@@ -40,7 +42,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 public class AndroidLauncher extends AndroidApplication implements LootGame.OnGameListener {
 
@@ -98,6 +103,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate()");
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         mGame = new LootGame(this);
         initialize(mGame, config);
@@ -119,6 +125,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(TAG, "onPause()");
 
         // unregister our listeners.  They will be re-registered via onResume->signInSilently->onConnected.
         if (mInvitationsClient != null) {
@@ -127,10 +134,17 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     }
 
 
+
     @Override
     public void startQuickGame() {
+        Log.d(TAG, "startQuickGame()");
+
+        if(mRealTimeMultiplayerClient == null) {
+            return;
+        }
+
         // quick-start a game with 1 randomly selected opponent
-        final int MIN_OPPONENTS = 3, MAX_OPPONENTS = 3;
+        final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
         Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
                 MAX_OPPONENTS, 0);
 
@@ -147,6 +161,51 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         mRealTimeMultiplayerClient.create(mRoomConfig);
     }
 
+    void startGame() {
+        Log.d(TAG, "startGame()");
+//        updateScoreDisplay();
+//        broadcastScore(false);
+        mGame.switchGameScreen();
+        for (Participant participant : mParticipants) {
+            Log.d(TAG + "par all  ", participant.getParticipantId());
+        }
+
+        Log.d(TAG + "par rand  ", mParticipants.get(new Random().nextInt(mParticipants.size())).getParticipantId());
+
+        Collections.sort(mParticipants, new Comparator<Participant>() {
+            @Override
+            public int compare(Participant o1, Participant o2) {
+                return o1.getParticipantId().compareTo(o2.getParticipantId());
+            }
+        });
+
+        for (Participant participant : mParticipants) {
+            Log.d(TAG + "par sort  ", participant.getParticipantId());
+        }
+
+
+        // run the gameTick() method every second to update the game.
+        final Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+//                if (mSecondsLeft <= 0) {
+//                    return;
+//                }
+//                gameTick();
+//                h.postDelayed(this, 1000);
+            }
+        }, 1000); if (mInvitationsClient != null) {
+            mInvitationsClient.unregisterInvitationCallback(mInvitationCallback);
+        }
+    }
+
+    public class CustomComparator implements Comparator<Participant> {
+        @Override
+        public int compare(Participant o1, Participant o2) {
+            return o1.getParticipantId().compareTo(o2.getParticipantId());
+        }
+    }
 
     public void startSignInIntent() {
         startActivityForResult(mGoogleSignInClient.getSignInIntent(), RC_SIGN_IN);
@@ -283,7 +342,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
             if (resultCode == Activity.RESULT_OK) {
                 // ready to start playing
                 Log.d(TAG, "Starting game (waiting room returned OK).");
-//                startGame();
+                startGame();
             } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
                 // player indicated that they want to leave the room
                 leaveRoom();
@@ -395,11 +454,17 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     // Activity is going to the background. We have to leave the current room.
     @Override
     public void onStop() {
-        Log.d(TAG, "**** got onStop");
+        Log.d(TAG, "onStop");
         leaveRoom();
         stopKeepingScreenOn();
         switchToMainScreen();
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 
     // Handle back key to make sure we cleanly leave a game if we are in the middle of one
@@ -469,7 +534,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
 
             if (mIncomingInvitationId.equals(invitationId) && mIncomingInvitationId != null) {
                 mIncomingInvitationId = null;
-                Log.d(TAG, "DON'T show popup. " );
+                Log.d(TAG, "DON'T show popup. ");
             }
         }
     };
@@ -593,36 +658,49 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         public void onPeerDeclined(Room room, @NonNull List<String> arg1) {
             updateRoom(room);
         }
+
         @Override
         public void onPeerInvitedToRoom(Room room, @NonNull List<String> arg1) {
             updateRoom(room);
         }
+
         @Override
-        public void onP2PDisconnected(@NonNull String participant) { }
+        public void onP2PDisconnected(@NonNull String participant) {
+        }
+
         @Override
-        public void onP2PConnected(@NonNull String participant) { }
+        public void onP2PConnected(@NonNull String participant) {
+        }
+
         @Override
         public void onPeerJoined(Room room, @NonNull List<String> arg1) {
             updateRoom(room);
         }
+
         @Override
         public void onPeerLeft(Room room, @NonNull List<String> peersWhoLeft) {
             updateRoom(room);
         }
+
         @Override
         public void onRoomAutoMatching(Room room) {
             updateRoom(room);
         }
+
         @Override
         public void onRoomConnecting(Room room) {
             updateRoom(room);
         }
+
         @Override
         public void onPeersConnected(Room room, @NonNull List<String> peers) {
             updateRoom(room);
         }
+
         @Override
-        public void onPeersDisconnected(Room room, @NonNull List<String> peers) { updateRoom(room); }
+        public void onPeersDisconnected(Room room, @NonNull List<String> peers) {
+            updateRoom(room);
+        }
     };
 
     // Show error message about game being cancelled and return to main screen.

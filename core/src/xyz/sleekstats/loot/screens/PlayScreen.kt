@@ -29,9 +29,10 @@ class PlayScreen(val game: LootGame) : Screen {
     private val topHud = TopHud(game.batch)
     private val bottomHud = BottomHud(game.batch)
     private var roundNumber = 1
+    private var gameStarted = false
 
     init {
-        println("playScreen width = ${viewport.worldWidth} height = ${viewport.worldHeight} ")
+        Gdx.app.log("loottagg", "playScreen width = ${viewport.worldWidth} height = ${viewport.worldHeight} ")
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
         for (i in 1..4) {
             players.add(Player(this, i))
@@ -42,13 +43,15 @@ class PlayScreen(val game: LootGame) : Screen {
     override fun show() {}
 
     override fun render(delta: Float) {
+        if(!gameStarted) { return }
         update(delta)
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+        Gdx.gl.glClearColor(1f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         batch.projectionMatrix = camera.combined
         batch.begin()
         batch.draw(bg, 0F, 0F, viewport.worldWidth, viewport.worldHeight)
+        Gdx.app.log("lootta", "render bg = $bg ${viewport.worldWidth}, ${viewport.worldHeight}")
         players.forEach { it.draw(batch) }
         trainScheduler.drawTrains(batch)
         batch.end()
@@ -81,6 +84,7 @@ class PlayScreen(val game: LootGame) : Screen {
     }
 
     fun update(dt: Float) {
+        Gdx.app.log("loott", "update")
         handleInput(dt)
         if (trainScheduler.trainArrived) {
             trainScheduler.updateTrains(dt)
@@ -136,4 +140,9 @@ class PlayScreen(val game: LootGame) : Screen {
     }
 
     override fun dispose() {}
+
+    fun startGame() {
+        gameStarted = true
+        Gdx.app.log("loottaggg", "ok lets go")
+    }
 }

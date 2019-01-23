@@ -1,6 +1,8 @@
 package xyz.sleekstats.loot
 
 import com.badlogic.gdx.Game
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import sun.rmi.runtime.Log
 import xyz.sleekstats.loot.screens.PlayScreen
@@ -9,14 +11,14 @@ import xyz.sleekstats.loot.screens.WelcomeScreen
 class LootGame(val mOnGameListener: OnGameListener) : Game() {
     internal lateinit var batch: SpriteBatch
 
-//    private var mOnGameListener: OnGameListener? = null
-
     override fun create() {
+        Gdx.app.log("loottagg", "createGame")
         batch = SpriteBatch()
         setScreen(WelcomeScreen(this))
     }
 
     override fun dispose() {
+        Gdx.app.log("loottagg", "disposeGame")
         batch.dispose()
     }
 
@@ -32,20 +34,35 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         fun startQuickGame();
     }
 
-    fun switchWaitScreen(){
-        println("switchScreen")
+    fun switchWaitScreen() {
+        Gdx.app.log("loottagg", "switchWaitScreen")
     }
-    fun switchMainScreen(){
-        println("switchScreen")
+
+    fun switchMainScreen() {
+        Gdx.app.log("loottagg", "switchMainScreen")
     }
-    fun switchSignInScreen(){
-        println("switchScreen")
+
+    fun switchSignInScreen() {
+        Gdx.app.log("loottagg", "switchSignInScreen")
     }
-    fun switchGameScreen(){
-        println("switchScreen")
+
+    fun switchGameScreen() {
+        Gdx.app.log("loottagg", "switchGameScreen")
+//        val screen = getScreen() as WelcomeScreen
+//        screen.poop()
+
+//        this.setScreen(PlayScreen(this))
+//        screen.dispose()
+        if(this.screen is PlayScreen) {
+            (this.screen as PlayScreen).startGame()
+        }
     }
 
     fun onStartClick() {
         mOnGameListener.startQuickGame()
+    }
+
+    fun poop() {
+        this.setScreen(PlayScreen(this))
     }
 }
