@@ -2,14 +2,13 @@ package xyz.sleekstats.loot
 
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import sun.rmi.runtime.Log
 import xyz.sleekstats.loot.screens.PlayScreen
 import xyz.sleekstats.loot.screens.WelcomeScreen
 
 class LootGame(val mOnGameListener: OnGameListener) : Game() {
     internal lateinit var batch: SpriteBatch
+    var playerNumber = -1
 
     override fun create() {
         Gdx.app.log("loottagg", "createGame")
@@ -31,7 +30,13 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         fun onClick(id: Int)
         fun signOut()
         fun acceptInviteToRoom(mIncomingInvitationId: String);
-        fun startQuickGame();
+        fun startQuickGame()
+
+        fun broadcastRound(roundNumber: Int)
+        fun broadcastTime(time: Float)
+        fun broadcastScore(score: Float)
+        fun broadcastTrain(arrived: Boolean)
+        fun broadcastPosition(collecting: Boolean)
     }
 
     fun switchWaitScreen() {
@@ -48,8 +53,6 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
 
     fun switchGameScreen() {
         Gdx.app.log("loottagg", "switchGameScreen")
-//        val screen = getScreen() as WelcomeScreen
-//        screen.poop()
 
 //        this.setScreen(PlayScreen(this))
 //        screen.dispose()
@@ -62,7 +65,35 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         mOnGameListener.startQuickGame()
     }
 
-    fun poop() {
+    fun onNewRound(roundNumber: Int) {
+        mOnGameListener.broadcastRound(roundNumber)
+    }
+
+    fun onTimeUpdate(time: Float) {
+        mOnGameListener.broadcastTime(time)
+    }
+
+
+    fun onTrainUpdate(arrived: Boolean) {
+        mOnGameListener.broadcastTrain(arrived)
+    }
+
+
+    fun onScoreUpdate(score: Float) {
+        mOnGameListener.broadcastScore(score)
+    }
+
+    fun onPositionUpdate(playerPos: Int, collecting: Boolean) {
+        mOnGameListener.broadcastPosition(collecting)
+    }
+
+    fun setPlayScreen() {
         this.setScreen(PlayScreen(this))
+    }
+
+    fun changeNumber(newNumber : Int) {
+        Gdx.app.log("loottagset", "changeNumber bef  $playerNumber")
+        playerNumber = newNumber
+        Gdx.app.log("loottagset", "changeNumber aft  $playerNumber")
     }
 }

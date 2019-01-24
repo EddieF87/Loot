@@ -28,7 +28,6 @@ class TopHud (sb : SpriteBatch) : Disposable {
     val pctLabel = Label("00", Label.LabelStyle(BitmapFont(), Color.WHITE))
 
     private val table = Table()
-    private var time = 0F
 
     init {
         table.top().padTop(10F).setFillParent(true)
@@ -52,9 +51,7 @@ class TopHud (sb : SpriteBatch) : Disposable {
     fun updateRound(round : Int) {
         roundLabel.setText(String.format("%02d", round))
     }
-    fun updateTimePct(dt: Float) {
-        time += dt
-
+    fun updateTime(time: Float) {
         timeLabel.setText(String.format("%06d", (time * 10).roundToInt()))
 //        pctLabel.setText(String.format("%02d", pct))
     }

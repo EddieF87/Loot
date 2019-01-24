@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
+import android.widget.Toast;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
@@ -41,9 +41,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -92,8 +94,10 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
 
     // Message buffer for sending messages
     byte[] mMsgBuf = new byte[2];
+    int mRound = 1;
 
     private LootGame mGame;
+    private int playerNumber;
 
     enum Screen {GAME, WAIT, MAIN, SIGN_IN}
 
@@ -134,12 +138,11 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     }
 
 
-
     @Override
     public void startQuickGame() {
         Log.d(TAG, "startQuickGame()");
 
-        if(mRealTimeMultiplayerClient == null) {
+        if (mRealTimeMultiplayerClient == null) {
             return;
         }
 
@@ -179,8 +182,17 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
             }
         });
 
-        for (Participant participant : mParticipants) {
+        for (int i = 0; i < mParticipants.size(); i++) {
+            Participant participant = mParticipants.get(i);
             Log.d(TAG + "par sort  ", participant.getParticipantId());
+            if(participant.getParticipantId().equals(mMyId)) {
+                playerNumber = i;
+                mGame.changeNumber(i);
+                Log.d(TAG + "set  ", i +  "  " + participant.getParticipantId());
+            }
+        }
+        if (mParticipants.get(0).getParticipantId().equals(mMyId)) {
+            Toast.makeText(this, "GTEEEEEEEEEEEEEET", Toast.LENGTH_LONG).show();
         }
 
 
@@ -195,17 +207,12 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
 //                gameTick();
 //                h.postDelayed(this, 1000);
             }
-        }, 1000); if (mInvitationsClient != null) {
+        }, 1000);
+        if (mInvitationsClient != null) {
             mInvitationsClient.unregisterInvitationCallback(mInvitationCallback);
         }
     }
 
-    public class CustomComparator implements Comparator<Participant> {
-        @Override
-        public int compare(Participant o1, Participant o2) {
-            return o1.getParticipantId().compareTo(o2.getParticipantId());
-        }
-    }
 
     public void startSignInIntent() {
         startActivityForResult(mGoogleSignInClient.getSignInIntent(), RC_SIGN_IN);
@@ -421,9 +428,93 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         public void onRealTimeMessageReceived(@NonNull RealTimeMessage realTimeMessage) {
             byte[] buf = realTimeMessage.getMessageData();
             String sender = realTimeMessage.getSenderParticipantId();
-            Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
+            if (buf[0] == 'R') {
+                Log.d(TAG + "mess", sender + "  Message received: " + (char) buf[0] + "/" + (int) buf[1]);
+            } else if (buf[0] == 'T') {
+                Log.d(TAG + "mess", sender + "  Message received: " + (char) buf[0] + "/" + (int) buf[1]);
+            } else {
+                Log.d(TAG + "mess", sender + "  Message received: " + ByteBuffer.wrap(buf).getInt());
+            }
         }
     };
+
+    // Broadcast my score to everybody else.
+    @Override
+    public void broadcastRound(int roundNumber) {
+
+        // First byte in message indicates whether it's a final score or not
+        mMsgBuf[0] = (byte) 'R';
+
+        mRound = roundNumber;
+        // Second byte is the score.
+        mMsgBuf[1] = (byte) mRound;
+
+        // it's an interim score notification, so we can use unreliable
+        mRealTimeMultiplayerClient.sendUnreliableMessageToOthers(mMsgBuf, mRoomId);
+    }
+
+    // Broadcast my score to everybody else.
+    @Override
+    public void broadcastScore(float time) {
+        byte[] mMsgTime = new byte[4];
+        ByteBuffer.wrap(mMsgTime).putInt((int) time * 10);
+
+        mRealTimeMultiplayerClient.sendUnreliableMessageToOthers(mMsgTime, mRoomId);
+    }
+
+    // Broadcast my score to everybody else.
+    @Override
+    public void broadcastTrain(boolean arrived) {
+        byte[] mMsgTrain = new byte[2];
+        mMsgTrain[0] = (byte) 'T';
+        mMsgTrain[1] = (byte) (arrived ? 1 : 0);
+
+        sendToAllReliably(mMsgTrain);
+    }
+
+    @Override
+    public void broadcastPosition(boolean collecting) {
+
+    }
+
+    void sendToAllReliably(byte[] message) {
+        for (Participant participant : mParticipants) {
+            Task<Integer> task = mRealTimeMultiplayerClient.sendReliableMessage(message, mRoomId, participant.getParticipantId(), handleMessageSentCallback)
+                    .addOnCompleteListener(new OnCompleteListener<Integer>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Integer> task) {
+                            // Keep track of which messages are sent, if desired.
+                            recordMessageToken(task.getResult());
+                        }
+                    });
+        }
+
+    }
+
+    HashSet<Integer> pendingMessageSet = new HashSet<>();
+
+    synchronized void recordMessageToken(int tokenId) {
+        pendingMessageSet.add(tokenId);
+    }
+
+    private RealTimeMultiplayerClient.ReliableMessageSentCallback handleMessageSentCallback =
+            new RealTimeMultiplayerClient.ReliableMessageSentCallback() {
+                @Override
+                public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientId) {
+                    // handle the message being sent.
+                    synchronized (this) {
+                        pendingMessageSet.remove(tokenId);
+                    }
+                }
+            };
+
+    @Override
+    public void broadcastTime(float time) {
+        byte[] mMsgTime = new byte[4];
+        ByteBuffer.wrap(mMsgTime).putInt((int) time * 10);
+
+        mRealTimeMultiplayerClient.sendUnreliableMessageToOthers(mMsgTime, mRoomId);
+    }
 
     // Accept the given invitation.
     @Override

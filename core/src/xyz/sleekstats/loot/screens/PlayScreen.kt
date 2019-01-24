@@ -24,12 +24,14 @@ class PlayScreen(val game: LootGame) : Screen {
     val world = World(Vector2(0F, 0F), true)
 
     val players = Array<Player>()
-    val trainScheduler = TrainScheduler(this, 10)
+    val trainScheduler = TrainScheduler(this, 50)
     val bg = Texture("bg.png")
     private val topHud = TopHud(game.batch)
     private val bottomHud = BottomHud(game.batch)
     private var roundNumber = 1
+    private var time = 0F
     private var gameStarted = false
+    private var playerNumber = game.playerNumber
 
     init {
         Gdx.app.log("loottagg", "playScreen width = ${viewport.worldWidth} height = ${viewport.worldHeight} ")
@@ -62,18 +64,16 @@ class PlayScreen(val game: LootGame) : Screen {
     }
 
     fun handleInput(dt: Float) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            players[0].transformPlayer()
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            players[1].transformPlayer()
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-            players[2].transformPlayer()
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-            players[3].transformPlayer()
+        if (playerNumber < 0) {
+            playerNumber = game.playerNumber
         }
 
-        if (Gdx.input.justTouched() && trainScheduler.trainArrived) {
-            nextRound()
+        if (Gdx.input.justTouched()) {
+            if(trainScheduler.trainArrived) {
+                nextRound()
+            } else if (playerNumber>-1){
+                players[playerNumber].transformPlayer()
+            }
         }
     }
 
@@ -81,19 +81,23 @@ class PlayScreen(val game: LootGame) : Screen {
         trainScheduler.reset()
         roundNumber++
         topHud.updateRound(roundNumber)
+        game.onNewRound(roundNumber)
     }
 
     fun update(dt: Float) {
         Gdx.app.log("loott", "update")
         handleInput(dt)
         if (trainScheduler.trainArrived) {
+            game.onTrainUpdate(trainScheduler.trainArrived)
             trainScheduler.updateTrains(dt)
             players.forEach { it.reset() }
             return
         }
         world.step(1 / 60F, 6, 2)
+        time+=dt
 
-        topHud.updateTimePct(dt)
+        topHud.updateTime(time)
+        game.onTimeUpdate(time)
         trainScheduler.update(dt)
 
         if (trainScheduler.trainArrived) {
@@ -142,7 +146,9 @@ class PlayScreen(val game: LootGame) : Screen {
     override fun dispose() {}
 
     fun startGame() {
+        Gdx.app.log("loottagset", "ok lets set  $playerNumber")
+        playerNumber = game.playerNumber
+        Gdx.app.log("loottagset", "ok lets go  $playerNumber")
         gameStarted = true
-        Gdx.app.log("loottaggg", "ok lets go")
     }
 }
