@@ -36,12 +36,13 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
         totalScoreUpdated = true
     }
 
-    fun transformPlayer() {
+    fun transformPlayer() : Boolean {
         if(isCollecting) {
             setNotCollecting()
         } else {
             setCollecting()
         }
+        return isCollecting
     }
 
     fun reset() {

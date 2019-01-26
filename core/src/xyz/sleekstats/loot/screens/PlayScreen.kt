@@ -45,7 +45,9 @@ class PlayScreen(val game: LootGame) : Screen {
     override fun show() {}
 
     override fun render(delta: Float) {
-        if(!gameStarted) { return }
+        if (!gameStarted) {
+            return
+        }
         update(delta)
         Gdx.gl.glClearColor(1f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
@@ -69,12 +71,25 @@ class PlayScreen(val game: LootGame) : Screen {
         }
 
         if (Gdx.input.justTouched()) {
-            if(trainScheduler.trainArrived) {
+            if (trainScheduler.trainArrived) {
                 nextRound()
-            } else if (playerNumber>-1){
-                players[playerNumber].transformPlayer()
+            } else if (playerNumber > -1) {
+                val collecting = players[playerNumber].transformPlayer()
+                game.onPositionUpdate(collecting)
             }
         }
+    }
+
+    fun movePlayer(playerPos: Int, collecting: Boolean) {
+        val player = players[playerPos]
+        if (player.isCollecting != collecting) {
+            player.transformPlayer()
+        }
+    }
+
+    fun updateTrainArrival(arrived: Boolean) {
+        trainScheduler.trainArrived = arrived
+        trainScheduler.createTrains()
     }
 
     fun nextRound() {
@@ -88,17 +103,22 @@ class PlayScreen(val game: LootGame) : Screen {
         Gdx.app.log("loott", "update")
         handleInput(dt)
         if (trainScheduler.trainArrived) {
-            game.onTrainUpdate(trainScheduler.trainArrived)
+//            game.onTrainUpdate(trainScheduler.trainArrived)
             trainScheduler.updateTrains(dt)
             players.forEach { it.reset() }
             return
         }
         world.step(1 / 60F, 6, 2)
-        time+=dt
+        time += dt
 
         topHud.updateTime(time)
         game.onTimeUpdate(time)
-        trainScheduler.update(dt)
+        if (playerNumber == 0) {
+
+            if (trainScheduler.trainArrived != trainScheduler.update(dt)) {
+                game.onTrainUpdate(trainScheduler.trainArrived)
+            }
+        }
 
         if (trainScheduler.trainArrived) {
             players.forEach {
@@ -106,7 +126,7 @@ class PlayScreen(val game: LootGame) : Screen {
                     it.updateTotalScore()
                 }
             }
-            if(!trainScheduler.totalScoresUpdated) {
+            if (!trainScheduler.totalScoresUpdated) {
                 trainScheduler.totalScoresUpdated = true
                 bottomHud.updatePlayerTotalScores(players)
             }

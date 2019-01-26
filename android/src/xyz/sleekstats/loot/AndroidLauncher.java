@@ -168,7 +168,7 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
         Log.d(TAG, "startGame()");
 //        updateScoreDisplay();
 //        broadcastScore(false);
-        mGame.switchGameScreen();
+        mGame.startNewGame();
         for (Participant participant : mParticipants) {
             Log.d(TAG + "par all  ", participant.getParticipantId());
         }
@@ -432,6 +432,14 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
                 Log.d(TAG + "mess", sender + "  Message received: " + (char) buf[0] + "/" + (int) buf[1]);
             } else if (buf[0] == 'T') {
                 Log.d(TAG + "mess", sender + "  Message received: " + (char) buf[0] + "/" + (int) buf[1]);
+                boolean arrived = (int) buf[1] == 1;
+                mGame.updateTrainArrival(arrived);
+            } else if (buf[0] == 'P') {
+                Log.d(TAG + "mess", sender + "  Message received: " + (char) buf[0] +
+                        "/  player " + (int) buf[1] +  " /  collecting " + (int) buf[2]);
+                int pos = (int) buf[1];
+                boolean collecting = (int) buf[2] == 1;
+                mGame.movePlayer(pos, collecting);
             } else {
                 Log.d(TAG + "mess", sender + "  Message received: " + ByteBuffer.wrap(buf).getInt());
             }
@@ -475,6 +483,11 @@ public class AndroidLauncher extends AndroidApplication implements LootGame.OnGa
     @Override
     public void broadcastPosition(boolean collecting) {
 
+        byte[] mMsgPos = new byte[3];
+        mMsgPos[0] = (byte) 'P';
+        mMsgPos[1] = (byte) playerNumber;
+        mMsgPos[2] = (byte) (collecting ? 1 : 0);
+        mRealTimeMultiplayerClient.sendUnreliableMessageToOthers(mMsgPos, mRoomId);
     }
 
     void sendToAllReliably(byte[] message) {

@@ -44,7 +44,7 @@ class WelcomeScreen(val game: LootGame) : Screen {
                 println("Button Pressed")
                 game.onStartClick()
 
-//                game.switchGameScreen()
+//                game.startNewGame()
                 Gdx.input.inputProcessor = null
                 game.setPlayScreen()
                 dispose()

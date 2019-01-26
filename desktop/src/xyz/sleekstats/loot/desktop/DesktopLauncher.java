@@ -5,7 +5,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 import org.jetbrains.annotations.NotNull;
 
-import sun.security.krb5.internal.crypto.Des;
 import xyz.sleekstats.loot.LootGame;
 
 public class DesktopLauncher {
@@ -48,7 +47,32 @@ public class DesktopLauncher {
 
 		@Override
 		public void startQuickGame() {
-			mGame.switchGameScreen();
+			mGame.startNewGame();
+		}
+
+		@Override
+		public void broadcastRound(int roundNumber) {
+
+		}
+
+		@Override
+		public void broadcastTime(float time) {
+
+		}
+
+		@Override
+		public void broadcastScore(float score) {
+
+		}
+
+		@Override
+		public void broadcastTrain(boolean arrived) {
+
+		}
+
+		@Override
+		public void broadcastPosition(boolean collecting) {
+
 		}
 	}
 }

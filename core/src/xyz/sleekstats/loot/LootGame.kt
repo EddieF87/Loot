@@ -51,13 +51,29 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         Gdx.app.log("loottagg", "switchSignInScreen")
     }
 
-    fun switchGameScreen() {
-        Gdx.app.log("loottagg", "switchGameScreen")
+    fun startNewGame() {
+        Gdx.app.log("loottagg", "startNewGame")
 
 //        this.setScreen(PlayScreen(this))
 //        screen.dispose()
         if(this.screen is PlayScreen) {
             (this.screen as PlayScreen).startGame()
+        }
+    }
+
+    fun movePlayer(playerPos: Int, collecting: Boolean) {
+        Gdx.app.log("loottagg", "movePlayer")
+
+        if(this.screen is PlayScreen) {
+            (this.screen as PlayScreen).movePlayer(playerPos, collecting)
+        }
+    }
+
+    fun updateTrainArrival(arrived: Boolean) {
+        Gdx.app.log("loottagg", "updateTrainArrival $arrived")
+
+        if(this.screen is PlayScreen) {
+            (this.screen as PlayScreen).updateTrainArrival(arrived)
         }
     }
 
@@ -83,7 +99,7 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         mOnGameListener.broadcastScore(score)
     }
 
-    fun onPositionUpdate(playerPos: Int, collecting: Boolean) {
+    fun onPositionUpdate(collecting: Boolean) {
         mOnGameListener.broadcastPosition(collecting)
     }
 
