@@ -56,7 +56,7 @@ class TopHud (sb : SpriteBatch) : Disposable {
 //        pctLabel.setText(String.format("%02d", pct))
     }
 
-    fun fffff(dt: Float) {
+    fun blankMethod(dt: Float) {
 //        println("player die!  ${(round * 10).roundToInt()}")
 //        round = 0F
 //        roundLabel.setText("XXXXXXX")

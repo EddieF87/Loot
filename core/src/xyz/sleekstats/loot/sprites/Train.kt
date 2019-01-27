@@ -7,7 +7,6 @@ import xyz.sleekstats.loot.screens.PlayScreen
 
 class Train(playScreen: PlayScreen, originX : Float)  : Sprite(Texture("train.png")) {
 
-    val velocity = 10F
     val endOfScreen = playScreen.viewport.worldWidth
     var posY = playScreen.viewport.worldHeight / 2 - height/2
 
