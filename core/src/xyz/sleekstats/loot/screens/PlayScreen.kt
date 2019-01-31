@@ -14,6 +14,7 @@ import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.sprites.Player
 import xyz.sleekstats.loot.sprites.TrainScheduler
 
+
 class PlayScreen(val game: LootGame) : Screen {
 
     private val camera = OrthographicCamera(LootGame.V_WIDTH, LootGame.V_HEIGHT)
@@ -28,9 +29,10 @@ class PlayScreen(val game: LootGame) : Screen {
     private val topHud = TopHud(game.batch)
     private val bottomHud = BottomHud(game.batch)
     private var roundNumber = 1
-    private var time = 0F
+    private var mTime = 0F
     private var gameStarted = false
     private var timeToUpdateTrains = false
+    private var timeTrainsHaveRun = 0F
     private var playerNumber = game.playerNumber
 
     init {
@@ -48,7 +50,7 @@ class PlayScreen(val game: LootGame) : Screen {
             return
         }
         update(delta)
-        Gdx.gl.glClearColor(1f, 0f, 0f, 1f)
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         batch.projectionMatrix = camera.combined
@@ -58,23 +60,21 @@ class PlayScreen(val game: LootGame) : Screen {
         trainScheduler.drawTrains(batch)
         batch.end()
 
-//        game.batch.projectionMatrix = topHud.stage.camera.combined
         topHud.stage.draw()
         bottomHud.stage.draw()
     }
 
     fun handleInput(dt: Float) {
+
         if (playerNumber < 0) {
             playerNumber = game.playerNumber
+
+            if (playerNumber < 0) { return }
         }
 
-        if (Gdx.input.justTouched()) {
-            if (trainScheduler.trainArrived) {
-                nextRound()
-            } else if (playerNumber > -1) {
-                val collecting = players[playerNumber].transformPlayer()
-                game.onPositionUpdate(collecting)
-            }
+        if (Gdx.input.justTouched() && !trainScheduler.trainArrived) {
+            val collecting = players[playerNumber].transformPlayer()
+            game.onPositionUpdate(collecting)
         }
     }
 
@@ -89,7 +89,28 @@ class PlayScreen(val game: LootGame) : Screen {
         timeToUpdateTrains = arrived
     }
 
+    fun beginTrainArrival() {
+        timeTrainsHaveRun = 0F
+
+        timeToUpdateTrains = false
+        trainScheduler.trainArrived = true
+        trainScheduler.createTrains()
+        players.forEach {
+            if (!it.totalScoreUpdated) {
+                it.updateTotalScore()
+            }
+        }
+        if (!trainScheduler.totalScoresUpdated) {
+            trainScheduler.totalScoresUpdated = true
+            bottomHud.updatePlayerTotalScores(players)
+        }
+        bottomHud.updatePlayerRoundScores(players)
+        camera.update()
+        return
+    }
+
     fun nextRound() {
+        timeTrainsHaveRun = 0F
         trainScheduler.reset()
         roundNumber++
         topHud.updateRound(roundNumber)
@@ -97,49 +118,56 @@ class PlayScreen(val game: LootGame) : Screen {
     }
 
     fun update(dt: Float) {
-        Gdx.app.log("loott", "update")
+
         handleInput(dt)
+
         if (trainScheduler.trainArrived) {
             trainScheduler.updateTrains(dt)
             players.forEach { it.reset() }
+
+            timeTrainsHaveRun += dt
+            if (timeTrainsHaveRun > 5) {
+                nextRound()
+            }
             return
         }
 
-        world.step(1 / 60F, 6, 2)
-        time += dt
+        mTime += dt
 
-        topHud.updateTime(time)
-        game.onTimeUpdate(time)
+        if (playerNumber == 0) {
 
-        if (playerNumber == 0 ) {
-            if (trainScheduler.trainArrived != trainScheduler.update(dt)) {
-                game.onTrainUpdate(trainScheduler.trainArrived)
+            topHud.updateTime(mTime)
+            game.onTimeUpdate(mTime)
+
+            players.forEach { it.update(dt) }
+            //todo broadcast player scores
+            if (trainScheduler.hasTrainArrived()) {
+                game.onTrainUpdate(true)
+                val scoreList = ArrayList<Float>()
+                players.forEach { scoreList.add(it.roundScore) }
+                game.onScoresUpdate(scoreList)
+                Gdx.app.log("messsc", "TrainArrived / players = ${players.size} / scores = ${scoreList.size}")
+                beginTrainArrival()
+                return
             }
         } else if (timeToUpdateTrains) {
-            timeToUpdateTrains = false
-            trainScheduler.trainArrived = true
-            trainScheduler.createTrains()
+            beginTrainArrival()
         }
 
-        if (trainScheduler.trainArrived) {
-            players.forEach {
-                if (!it.totalScoreUpdated) {
-                    it.updateTotalScore()
-                }
-            }
-            if (!trainScheduler.totalScoresUpdated) {
-                trainScheduler.totalScoresUpdated = true
-                bottomHud.updatePlayerTotalScores(players)
-            }
-        } else {
-            players.forEach {
-                it.update(dt)
-            }
-        }
+//        players.forEach { it.update(dt) }
 
         bottomHud.updatePlayerRoundScores(players)
-
         camera.update()
+    }
+
+
+    fun updateTime(time: Float) {
+        topHud.updateTime(time)
+    }
+
+    fun updateRound(round: Int) {
+        roundNumber = round
+        topHud.updateRound(round)
     }
 
 
@@ -152,9 +180,7 @@ class PlayScreen(val game: LootGame) : Screen {
     override fun dispose() {}
 
     fun startGame() {
-        Gdx.app.log("loottagset", "ok lets set  $playerNumber")
         playerNumber = game.playerNumber
-        Gdx.app.log("loottagset", "ok lets go  $playerNumber")
         gameStarted = true
     }
 }

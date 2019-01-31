@@ -29,6 +29,7 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
     }
 
     fun updateTotalScore() {
+
         if(!isCollecting) {
             totalScore += roundScore
         }

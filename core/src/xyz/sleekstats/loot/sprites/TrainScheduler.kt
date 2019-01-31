@@ -12,14 +12,14 @@ class TrainScheduler(val playScreen: PlayScreen, var probabilityOfArrivingOutOf1
     var totalScoresUpdated = false
     val trains = Array<Train>()
 
-    fun update(dt: Float): Boolean {
-        trainArrived = hasTrainArrived()
-
-        if (trainArrived) {
-            createTrains()
-        }
-        return trainArrived
-    }
+//    fun update(dt: Float): Boolean {
+//        trainArrived = hasTrainArrived()
+//
+//        if (trainArrived) {
+//            createTrains()
+//        }
+//        return trainArrived
+//    }
 
     fun createTrains() {
         val numberOfTrains: Int = (playScreen.viewport.worldWidth / Train.TRAIN_WIDTH).roundToInt() + 1

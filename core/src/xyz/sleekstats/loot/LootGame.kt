@@ -34,22 +34,14 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
 
         fun broadcastRound(roundNumber: Int)
         fun broadcastTime(time: Float)
-        fun broadcastScore(score: Float)
+        fun broadcastScores(scores: List<Float>)
         fun broadcastTrain(arrived: Boolean)
         fun broadcastPosition(collecting: Boolean)
     }
 
-    fun switchWaitScreen() {
-        Gdx.app.log("loottagg", "switchWaitScreen")
-    }
-
-    fun switchMainScreen() {
-        Gdx.app.log("loottagg", "switchMainScreen")
-    }
-
-    fun switchSignInScreen() {
-        Gdx.app.log("loottagg", "switchSignInScreen")
-    }
+    fun switchWaitScreen() { Gdx.app.log("loottagg", "switchWaitScreen") }
+    fun switchMainScreen() { Gdx.app.log("loottagg", "switchMainScreen") }
+    fun switchSignInScreen() { Gdx.app.log("loottagg", "switchSignInScreen") }
 
     fun startNewGame() {
         Gdx.app.log("loottagg", "startNewGame")
@@ -77,39 +69,39 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         }
     }
 
-    fun onStartClick() {
-        mOnGameListener.startQuickGame()
+    fun updateTime(time: Float) {
+        if(this.screen is PlayScreen) {
+            (this.screen as PlayScreen).updateTime(time)
+        }
+    }
+    fun updateScores(arrived: Boolean) {
+        if(this.screen is PlayScreen) {
+            (this.screen as PlayScreen).updateTrainArrival(arrived)
+        }
+    }
+    fun updateRound(round: Int) {
+        if(this.screen is PlayScreen) {
+            (this.screen as PlayScreen).updateRound(round)
+        }
     }
 
-    fun onNewRound(roundNumber: Int) {
-        mOnGameListener.broadcastRound(roundNumber)
-    }
+    fun onStartClick() { mOnGameListener.startQuickGame() }
 
-    fun onTimeUpdate(time: Float) {
-        mOnGameListener.broadcastTime(time)
-    }
+    fun onNewRound(roundNumber: Int) { mOnGameListener.broadcastRound(roundNumber) }
 
+    fun onTimeUpdate(time: Float) { mOnGameListener.broadcastTime(time) }
 
-    fun onTrainUpdate(arrived: Boolean) {
-        mOnGameListener.broadcastTrain(arrived)
-    }
+    fun onTrainUpdate(arrived: Boolean) { mOnGameListener.broadcastTrain(arrived) }
 
+    fun onScoresUpdate(scores: List<Float>) { mOnGameListener.broadcastScores(scores) }
 
-    fun onScoreUpdate(score: Float) {
-        mOnGameListener.broadcastScore(score)
-    }
-
-    fun onPositionUpdate(collecting: Boolean) {
-        mOnGameListener.broadcastPosition(collecting)
-    }
+    fun onPositionUpdate(collecting: Boolean) { mOnGameListener.broadcastPosition(collecting) }
 
     fun setPlayScreen() {
         this.setScreen(PlayScreen(this))
     }
 
     fun changeNumber(newNumber : Int) {
-        Gdx.app.log("loottagset", "changeNumber bef  $playerNumber")
         playerNumber = newNumber
-        Gdx.app.log("loottagset", "changeNumber aft  $playerNumber")
     }
 }
