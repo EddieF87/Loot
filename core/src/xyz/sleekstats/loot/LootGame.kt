@@ -74,9 +74,9 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
             (this.screen as PlayScreen).updateTime(time)
         }
     }
-    fun updateScores(arrived: Boolean) {
+    fun updateScores(scores: List<Int>) {
         if(this.screen is PlayScreen) {
-            (this.screen as PlayScreen).updateTrainArrival(arrived)
+            (this.screen as PlayScreen).updateScores(scores)
         }
     }
     fun updateRound(round: Int) {

@@ -95,6 +95,11 @@ class PlayScreen(val game: LootGame) : Screen {
         timeToUpdateTrains = false
         trainScheduler.trainArrived = true
         trainScheduler.createTrains()
+        camera.update()
+        return
+    }
+
+    fun updateScoreDisplay(){
         players.forEach {
             if (!it.totalScoreUpdated) {
                 it.updateTotalScore()
@@ -105,8 +110,6 @@ class PlayScreen(val game: LootGame) : Screen {
             bottomHud.updatePlayerTotalScores(players)
         }
         bottomHud.updatePlayerRoundScores(players)
-        camera.update()
-        return
     }
 
     fun nextRound() {
@@ -144,10 +147,11 @@ class PlayScreen(val game: LootGame) : Screen {
             if (trainScheduler.hasTrainArrived()) {
                 game.onTrainUpdate(true)
                 val scoreList = ArrayList<Float>()
-                players.forEach { scoreList.add(it.roundScore) }
+                players.forEach { scoreList.add(it.totalScore) }
                 game.onScoresUpdate(scoreList)
                 Gdx.app.log("messsc", "TrainArrived / players = ${players.size} / scores = ${scoreList.size}")
                 beginTrainArrival()
+                updateScoreDisplay()
                 return
             }
         } else if (timeToUpdateTrains) {
@@ -168,6 +172,11 @@ class PlayScreen(val game: LootGame) : Screen {
     fun updateRound(round: Int) {
         roundNumber = round
         topHud.updateRound(round)
+    }
+
+    fun updateScores(scores: List<Int>) {
+        Gdx.app.log("messscbr", "screen updateScores")
+        bottomHud.updateScoresFromBroadcast(scores)
     }
 
 

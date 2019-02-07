@@ -57,7 +57,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     internal var mMsgBuf = ByteArray(2)
     internal var mRound = 1
 
-    private var mGame: LootGame? = null
+    private var mGame = LootGame(this)
     private var playerNumber: Int = 0
 
     private var mCurScreen: Screen? = null
@@ -72,29 +72,27 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
             'T' -> {
                 Log.d(TAG + "messT", sender + "  Message received: " + buf[0].toChar() + "/" + buf[1].toInt())
                 val arrived = buf[1].toInt() == 1
-                mGame!!.updateTrainArrival(arrived)
+                mGame.updateTrainArrival(arrived)
             }
             'P' -> {
                 Log.d(TAG + "messP", sender + "  Message received: " + buf[0].toChar() +
                         "/  player " + buf[1].toInt() + " /  collecting " + buf[2].toInt())
                 val pos = buf[1].toInt()
                 val collecting = buf[2].toInt() == 1
-                mGame!!.movePlayer(pos, collecting)
+                mGame.movePlayer(pos, collecting)
             }
             'S' -> {
                 Log.d(TAG + "messScore", sender + "  Message received!")
                 val scores = ArrayList<Int>()
                 for(i in 0..3) {
-                    scores.add(ByteBuffer.wrap(buf).getInt(1 + i * 4))
+                    var x = ByteBuffer.wrap(buf).getInt(1 + i * 4)
+                    scores.add(x)
+                    Log.d(TAG + "messScoreA", "player $i = $x")
                 }
-
-                for(i in 0..scores.size-1) {
-                    Log.d(TAG + "messScore", "$i score = ${scores[i]}")
-                }
-
+                mGame.updateScores(scores)
             }
             else -> {
-                mGame!!.updateTime(ByteBuffer.wrap(buf).float)
+                mGame.updateTime(ByteBuffer.wrap(buf).float)
                 Log.d(TAG + "messtime", sender + "  Message received: " + ByteBuffer.wrap(buf).float)
             }
         }
@@ -272,7 +270,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate()")
         val config = AndroidApplicationConfiguration()
-        mGame = LootGame(this)
+//        mGame = LootGame(this)
         initialize(mGame, config)
         mGoogleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
         startSignInIntent()
@@ -312,7 +310,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         val autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
                 MAX_OPPONENTS, 0)
 
-        mGame!!.switchWaitScreen()
+        mGame.switchWaitScreen()
         mCurScreen = Screen.WAIT
 
         keepScreenOn()
@@ -329,7 +327,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         Log.d(TAG, "startGame()")
         //        updateScoreDisplay();
         //        broadcastScore(false);
-        mGame!!.startNewGame()
+        mGame.startNewGame()
         for (participant in mParticipants!!) {
             Log.d(TAG + "par all  ", participant.participantId)
         }
@@ -343,7 +341,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
             Log.d(TAG + "par sort  ", participant.participantId)
             if (participant.participantId == mMyId) {
                 playerNumber = i
-                mGame!!.changeNumber(i)
+                mGame.changeNumber(i)
                 Log.d(TAG + "set  ", i.toString() + "  " + participant.participantId)
             }
         }
@@ -512,7 +510,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
         // create the room
         Log.d(TAG, "Creating room...")
-        mGame!!.switchWaitScreen()
+        mGame.switchWaitScreen()
         mCurScreen = Screen.WAIT
 
         keepScreenOn()
@@ -564,7 +562,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         val mMsgScore = ByteArray((1 + (scores.size * 4)))
         mMsgScore[0] = 'S'.toByte()
         for (i in 0..3) {
-            ByteBuffer.wrap(mMsgScore).putInt((1 + (i*4)), scores[i].toInt())
+            ByteBuffer.wrap(mMsgScore).putInt((1 + (i*4)), (scores[i] * 10).toInt())
         }
 
         sendToAllReliably(mMsgScore)
@@ -630,7 +628,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                 .setRoomStatusUpdateCallback(mRoomStatusUpdateCallback)
                 .build()
 
-        mGame!!.switchWaitScreen()
+        mGame.switchWaitScreen()
         mCurScreen = Screen.WAIT
 
         keepScreenOn()
@@ -672,7 +670,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                         mRoomId = null
                         mRoomConfig = null
                     }
-            mGame!!.switchWaitScreen()
+            mGame.switchWaitScreen()
             mCurScreen = Screen.WAIT
 
         } else {
@@ -774,10 +772,10 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
     internal fun switchToMainScreen() {
         if (mRealTimeMultiplayerClient != null) {
-            mGame!!.switchMainScreen()
+            mGame.switchMainScreen()
             mCurScreen = Screen.MAIN
         } else {
-            mGame!!.switchMainScreen()
+            mGame.switchMainScreen()
             mCurScreen = Screen.SIGN_IN
         }
     }

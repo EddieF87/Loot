@@ -1,5 +1,6 @@
 package xyz.sleekstats.loot.screens
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -84,6 +85,7 @@ class BottomHud(sb : SpriteBatch) : Disposable {
     }
 
     fun updatePlayerTotalScores(players: Array<Player>) {
+        Gdx.app.log("messscbr", "updatePlayerTotalScores")
         player1TotalScoreLabel.setText(String.format("%05d", (players[0].totalScore * 10).roundToInt()))
         player2TotalScoreLabel.setText(String.format("%05d", (players[1].totalScore * 10).roundToInt()))
         player3TotalScoreLabel.setText(String.format("%05d", (players[2].totalScore * 10).roundToInt()))
@@ -95,6 +97,15 @@ class BottomHud(sb : SpriteBatch) : Disposable {
         player2RoundScoreLabel.setText(String.format("%04d", (players[1].roundScore * 10).roundToInt()))
         player3RoundScoreLabel.setText(String.format("%04d", (players[2].roundScore * 10).roundToInt()))
         player4RoundScoreLabel.setText(String.format("%04d", (players[3].roundScore * 10).roundToInt()))
+    }
+
+    fun updateScoresFromBroadcast(scores: List<Int>) {
+        Gdx.app.log("messscbr", "updateScoresFromBroadcast")
+        scores.forEach {         Gdx.app.log("messscbr", "score = $it") }
+        player1TotalScoreLabel.setText(String.format("%05d", (scores[0])))
+        player2TotalScoreLabel.setText(String.format("%05d", (scores[1])))
+        player3TotalScoreLabel.setText(String.format("%05d", (scores[2])))
+        player4TotalScoreLabel.setText(String.format("%05d", (scores[3])))
     }
 
     override fun dispose() {
