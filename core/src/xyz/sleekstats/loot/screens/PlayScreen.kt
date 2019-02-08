@@ -146,12 +146,11 @@ class PlayScreen(val game: LootGame) : Screen {
             //todo broadcast player scores
             if (trainScheduler.hasTrainArrived()) {
                 game.onTrainUpdate(true)
+                beginTrainArrival()
+                updateScoreDisplay()
                 val scoreList = ArrayList<Float>()
                 players.forEach { scoreList.add(it.totalScore) }
                 game.onScoresUpdate(scoreList)
-                Gdx.app.log("messsc", "TrainArrived / players = ${players.size} / scores = ${scoreList.size}")
-                beginTrainArrival()
-                updateScoreDisplay()
                 return
             }
         } else if (timeToUpdateTrains) {

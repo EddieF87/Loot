@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
@@ -562,7 +563,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         val mMsgScore = ByteArray((1 + (scores.size * 4)))
         mMsgScore[0] = 'S'.toByte()
         for (i in 0..3) {
-            ByteBuffer.wrap(mMsgScore).putInt((1 + (i*4)), (scores[i] * 10).toInt())
+            ByteBuffer.wrap(mMsgScore).putInt((1 + (i*4)), (scores[i] * 10).roundToInt())
         }
 
         sendToAllReliably(mMsgScore)
