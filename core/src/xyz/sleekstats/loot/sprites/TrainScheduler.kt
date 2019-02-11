@@ -10,16 +10,10 @@ class TrainScheduler(val playScreen: PlayScreen, var probabilityOfArrivingOutOf1
 
     var trainArrived = false
     var totalScoresUpdated = false
-    val trains = Array<Train>()
+    private val trains = Array<Train>()
+    private val freeZone = 5;
+    private var freeTime = 0F;
 
-//    fun update(dt: Float): Boolean {
-//        trainArrived = hasTrainArrived()
-//
-//        if (trainArrived) {
-//            createTrains()
-//        }
-//        return trainArrived
-//    }
 
     fun createTrains() {
         val numberOfTrains: Int = (playScreen.viewport.worldWidth / Train.TRAIN_WIDTH).roundToInt() + 1
@@ -42,7 +36,11 @@ class TrainScheduler(val playScreen: PlayScreen, var probabilityOfArrivingOutOf1
         }
     }
 
-    fun hasTrainArrived(): Boolean {
+    fun hasTrainArrived(dt: Float): Boolean {
+        if(freeTime < freeZone) {
+            freeTime += dt
+            return false
+        }
         val random = Random()
         val randomNumber = random.nextInt(10000)
         return probabilityOfArrivingOutOf10000 > randomNumber
@@ -50,6 +48,7 @@ class TrainScheduler(val playScreen: PlayScreen, var probabilityOfArrivingOutOf1
 
     fun reset() {
         trains.clear()
+        freeTime = 0F
         trainArrived = false
         totalScoresUpdated = false
     }
