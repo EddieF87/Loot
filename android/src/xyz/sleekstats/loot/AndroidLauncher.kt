@@ -584,6 +584,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         val mMsgTime = ByteArray(4)
         ByteBuffer.wrap(mMsgTime).putFloat(time)
 
+        if(mRealTimeMultiplayerClient == null) {return}
         mRealTimeMultiplayerClient!!.sendUnreliableMessageToOthers(mMsgTime, mRoomId!!)
     }
 

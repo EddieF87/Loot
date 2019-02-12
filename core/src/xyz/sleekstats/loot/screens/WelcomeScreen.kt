@@ -31,7 +31,7 @@ class WelcomeScreen(val game: LootGame) : Screen {
         Gdx.input.inputProcessor = stage
         val font = BitmapFont()
 //        val skin = Skin()
-//        val buttonAtlas  = TextureAtlas("Mario_and_Enemies.pack.txt")
+//        val buttonAtlas  = TextureAtlas("gnome.pack.txt")
 //        skin.addRegions(buttonImg)
         val textButtonStyle = TextButtonStyle()
         textButtonStyle.font = font

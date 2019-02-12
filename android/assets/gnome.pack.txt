@@ -1,0 +1,26 @@
+
+Gnome2.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+gnome_dig
+  rotate: false
+  xy: 0, 0
+  size: 80, 40
+  orig: 80, 40
+  offset: 0, 0
+  index: -1
+gnome_squash
+  rotate: false
+  xy: 0, 40
+  size: 80, 40
+  orig: 80, 40
+  offset: 0, 0
+  index: -1
+gnome_stand
+  rotate: false
+  xy: 0, 80
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
