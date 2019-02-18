@@ -38,7 +38,7 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
         frames.clear()
 
 
-        setBounds(posX , playScreen.viewport.worldHeight / 4 -8, 70F, 70F)
+        setBounds(posX , LootGame.V_HEIGHT / 4 -8, 70F, 70F)
         setRegion(gnomeStand)
     }
 
@@ -46,7 +46,7 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
         setRegion(getFrame(dt))
     }
 
-    fun getFrame(dt: Float): TextureRegion {
+    private fun getFrame(dt: Float): TextureRegion {
         val frame : TextureRegion
         when {
             isSquashed -> {
@@ -79,6 +79,7 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
             stateTimer = 0F
             Gdx.app.log("chomp", "squish")
         }
+        setNotCollecting()
         roundScore = 0F
         totalScoreUpdated = true
     }
@@ -93,19 +94,17 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
     }
 
     fun reset() {
-        setNotCollecting()
+//        setNotCollecting()
         totalScoreUpdated = false
     }
 
     fun setCollecting() {
         isCollecting = true
-//        setRegion(gnomeDig)
         setPosition(posX, LootGame.V_HEIGHT /2 - height/2)
     }
     fun setNotCollecting() {
         isCollecting = false
         stateTimer = 0F
-//        setRegion(gnomeStand)
         setPosition(posX, LootGame.V_HEIGHT /4 - height/2)
     }
 }

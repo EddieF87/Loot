@@ -33,9 +33,9 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         fun startQuickGame()
 
         fun broadcastRound(roundNumber: Int)
-        fun broadcastTime(time: Float)
-        fun broadcastScores(scores: List<Float>)
-        fun broadcastTrain(arrived: Boolean)
+//        fun broadcastTime(time: Float)
+//        fun broadcastScores(scores: List<Float>)
+        fun broadcastTrainArrived(playerNumber: Int, playerScore: Float)
         fun broadcastPosition(collecting: Boolean)
     }
 
@@ -61,20 +61,7 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         }
     }
 
-    fun updateTrainArrival(arrived: Boolean) {
-        Gdx.app.log("loottagg", "updateTrainArrival $arrived")
-
-        if(this.screen is PlayScreen) {
-            (this.screen as PlayScreen).updateTrainArrival(arrived)
-        }
-    }
-
-    fun updateTime(time: Float) {
-        if(this.screen is PlayScreen) {
-            (this.screen as PlayScreen).updateTime(time)
-        }
-    }
-    fun updateScores(scores: List<Int>) {
+    fun updateScores(scores: IntArray) {
         if(this.screen is PlayScreen) {
             (this.screen as PlayScreen).updateScores(scores)
         }
@@ -89,11 +76,8 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
 
     fun onNewRound(roundNumber: Int) { mOnGameListener.broadcastRound(roundNumber) }
 
-    fun onTimeUpdate(time: Float) { mOnGameListener.broadcastTime(time) }
+    fun onTrainArrived(playerNumber: Int, playerScore: Float) { mOnGameListener.broadcastTrainArrived(playerNumber, playerScore) }
 
-    fun onTrainUpdate(arrived: Boolean) { mOnGameListener.broadcastTrain(arrived) }
-
-    fun onScoresUpdate(scores: List<Float>) { mOnGameListener.broadcastScores(scores) }
 
     fun onPositionUpdate(collecting: Boolean) { mOnGameListener.broadcastPosition(collecting) }
 

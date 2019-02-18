@@ -99,7 +99,7 @@ class BottomHud(sb : SpriteBatch) : Disposable {
         player4RoundScoreLabel.setText(String.format("%04d", (players[3].roundScore * 10).roundToInt()))
     }
 
-    fun updateScoresFromBroadcast(scores: List<Int>) {
+    fun updateScoresFromBroadcast(scores: IntArray) {
         Gdx.app.log("messscbr", "updateScoresFromBroadcast")
         scores.forEach {         Gdx.app.log("messscbr", "score = $it") }
         player1TotalScoreLabel.setText(String.format("%05d", (scores[0])))

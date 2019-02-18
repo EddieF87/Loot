@@ -63,17 +63,17 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
     private var mCurScreen: Screen? = null
 
+    private val msgScores = ByteArray(15)
+    init { msgScores[0] = 'S'.toByte() }
+    val scores = intArrayOf(0, 0, 0, 0)
+    var playerScoresReceived = 0
+
     internal var mOnRealTimeMessageReceivedListener: OnRealTimeMessageReceivedListener = OnRealTimeMessageReceivedListener { realTimeMessage ->
         val buf = realTimeMessage.messageData
         val sender = realTimeMessage.senderParticipantId
         when (buf[0].toChar()) {
             'R' -> {
                 Log.d(TAG + "messR", sender + "  Message received: " + buf[0].toChar() + "/" + buf[1].toInt())
-            }
-            'T' -> {
-                Log.d(TAG + "messT", sender + "  Message received: " + buf[0].toChar() + "/" + buf[1].toInt())
-                val arrived = buf[1].toInt() == 1
-                mGame.updateTrainArrival(arrived)
             }
             'P' -> {
                 Log.d(TAG + "messP", sender + "  Message received: " + buf[0].toChar() +
@@ -83,17 +83,18 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                 mGame.movePlayer(pos, collecting)
             }
             'S' -> {
-                Log.d(TAG + "messScore", sender + "  Message received!")
-                val scores = ArrayList<Int>()
-                for(i in 0..3) {
-                    var x = ByteBuffer.wrap(buf).getInt(1 + i * 4)
-                    scores.add(x)
-                    Log.d(TAG + "messScoreA", "player $i = $x")
+                val playerNum = buf[1].toInt()
+                val score = ByteBuffer.wrap(buf).getInt(2)
+                scores[playerNum] = score
+                Log.d(TAG + "messScore", sender + "  Message received! player $playerNum = $score or ${scores[playerNum]}")
+                playerScoresReceived++
+                if (playerScoresReceived > 1) { //TODO change later for other sizes
+                    Log.d(TAG + "messScoreA", "updateScores ${scores[0]} ${scores[1]} ${scores[2]} ${scores[3]}")
+                    mGame.updateScores(scores)
+                    playerScoresReceived = 0
                 }
-                mGame.updateScores(scores)
             }
             else -> {
-                mGame.updateTime(ByteBuffer.wrap(buf).float)
                 Log.d(TAG + "messtime", sender + "  Message received: " + ByteBuffer.wrap(buf).float)
             }
         }
@@ -557,39 +558,29 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         mRealTimeMultiplayerClient!!.sendUnreliableMessageToOthers(mMsgBuf, mRoomId!!)
     }
 
-    // Broadcast player scores to everybody else.
-    override fun broadcastScores(scores: List<Float>) {
-
-        val mMsgScore = ByteArray((1 + (scores.size * 4)))
-        mMsgScore[0] = 'S'.toByte()
-        for (i in 0..3) {
-            ByteBuffer.wrap(mMsgScore).putInt((1 + (i*4)), (scores[i] * 10).roundToInt())
-        }
-
-        sendToAllReliably(mMsgScore)
-    }
-
     // Broadcast train arrival to everybody else.
-    override fun broadcastTrain(arrived: Boolean) {
-        val mMsgTrain = ByteArray(2)
-        mMsgTrain[0] = 'T'.toByte()
-        mMsgTrain[1] = (if (arrived) 1 else 0).toByte()
+    override fun broadcastTrainArrived(playerNum: Int, playerScore: Float) {
+        Log.d(TAG + "messScore", "Send Message! playerNum = $playerNum  playerScore = $playerScore")
 
-        Log.d(TAG + "messTb", "broadcastTrain $arrived")
-        sendToAllReliably(mMsgTrain)
+        val mMsgScore = ByteArray(6)
+        mMsgScore[0] = 'S'.toByte()
+        mMsgScore[1] = playerNum.toByte()
+        ByteBuffer.wrap(mMsgScore).putInt(2, (playerScore * 10).roundToInt())
+
+        val x = (playerScore * 10).roundToInt()
+        scores[playerNum] = x
+        Log.d(TAG + "messScore", "Send Message! playerNum = $playerNum  playerScore = $playerScore or ${scores[playerNum]}")
+        playerScoresReceived++
+        sendToAllReliably(mMsgScore)
+        if (playerScoresReceived > 1) { //TODO change later for other sizes
+            Log.d(TAG + "messScoreA", "updateScores ${scores[0]} ${scores[1]} ${scores[2]} ${scores[3]}")
+            mGame.updateScores(scores)
+            playerScoresReceived = 0
+        }
     }
 
-    // Broadcast time to everybody else.
-    override fun broadcastTime(time: Float) {
-        val mMsgTime = ByteArray(4)
-        ByteBuffer.wrap(mMsgTime).putFloat(time)
 
-        if(mRealTimeMultiplayerClient == null) {return}
-        mRealTimeMultiplayerClient!!.sendUnreliableMessageToOthers(mMsgTime, mRoomId!!)
-    }
-
-
-    // Broadcast time to everybody else.
+    // Broadcast position to everybody else.
     override fun broadcastPosition(collecting: Boolean) {
 
         val mMsgPos = ByteArray(3)
