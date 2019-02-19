@@ -88,15 +88,23 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                 scores[playerNum] = score
                 Log.d(TAG + "messScore", sender + "  Message received! player $playerNum = $score or ${scores[playerNum]}")
                 playerScoresReceived++
-                if (playerScoresReceived > 1) { //TODO change later for other sizes
-                    Log.d(TAG + "messScoreA", "updateScores ${scores[0]} ${scores[1]} ${scores[2]} ${scores[3]}")
-                    mGame.updateScores(scores)
-                    playerScoresReceived = 0
-                }
+                updateScores()
             }
             else -> {
                 Log.d(TAG + "messtime", sender + "  Message received: " + ByteBuffer.wrap(buf).float)
             }
+        }
+    }
+
+    fun updateScores() {
+        if (playerScoresReceived > 1) { //TODO change later for other sizes
+            if(scores.max() ?: -1 > 15) {
+                val maxId = scores.indices.maxBy { scores[it] } ?: -1
+                mGame.announceWinner(maxId)
+            }
+            Log.d(TAG + "messScoreA", "updateScores ${scores[0]} ${scores[1]} ${scores[2]} ${scores[3]}")
+            mGame.updateScores(scores)
+            playerScoresReceived = 0
         }
     }
 
@@ -572,11 +580,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         Log.d(TAG + "messScore", "Send Message! playerNum = $playerNum  playerScore = $playerScore or ${scores[playerNum]}")
         playerScoresReceived++
         sendToAllReliably(mMsgScore)
-        if (playerScoresReceived > 1) { //TODO change later for other sizes
-            Log.d(TAG + "messScoreA", "updateScores ${scores[0]} ${scores[1]} ${scores[2]} ${scores[3]}")
-            mGame.updateScores(scores)
-            playerScoresReceived = 0
-        }
+        updateScores()
     }
 
 

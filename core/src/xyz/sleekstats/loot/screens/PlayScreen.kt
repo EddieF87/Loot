@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.FitViewport
+import sun.rmi.runtime.Log
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.sprites.Player
 import xyz.sleekstats.loot.sprites.TrainScheduler
@@ -161,5 +162,12 @@ class PlayScreen(val game: LootGame) : Screen {
     fun startGame() {
         playerNumber = game.playerNumber
         gameStarted = true
+    }
+
+    fun announceWinner(id: Int) {
+        Gdx.app.log("WINNNN", "player $id wins!")
+        if(playerNumber == id) {
+            Gdx.app.log("WINNNN", "YOU WONNN!")
+        }
     }
 }

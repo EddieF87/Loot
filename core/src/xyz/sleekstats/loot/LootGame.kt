@@ -66,9 +66,11 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
             (this.screen as PlayScreen).updateScores(scores)
         }
     }
-    fun updateRound(round: Int) {
+
+
+    fun announceWinner(id: Int) {
         if(this.screen is PlayScreen) {
-            (this.screen as PlayScreen).updateRound(round)
+            (this.screen as PlayScreen).announceWinner(id)
         }
     }
 
