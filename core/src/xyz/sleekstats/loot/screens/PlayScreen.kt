@@ -97,7 +97,6 @@ class PlayScreen(val game: LootGame) : Screen {
         trainScheduler.reset()
         roundNumber++
         topHud.updateRound(roundNumber)
-        game.onNewRound(roundNumber)
     }
 
     fun update(dt: Float) {
@@ -135,16 +134,6 @@ class PlayScreen(val game: LootGame) : Screen {
         camera.update()
     }
 
-
-    fun updateTime(time: Float) {
-        topHud.updateTime(time)
-    }
-
-    fun updateRound(round: Int) {
-        roundNumber = round
-        topHud.updateRound(round)
-    }
-
     fun updateScores(scores: IntArray) {
         Gdx.app.log("messscbr", "screen updateScores")
         timeToUpdateTrains = true
@@ -157,17 +146,16 @@ class PlayScreen(val game: LootGame) : Screen {
 
     override fun pause() {}
     override fun resume() {}
-    override fun dispose() {}
+    override fun dispose() {
+        Gdx.app.log("WINNNN", "playscreen dispose")
+        nextRound()
+        gameStarted = false
+        topHud.dispose()
+        bottomHud.dispose()
+    }
 
     fun startGame() {
         playerNumber = game.playerNumber
         gameStarted = true
-    }
-
-    fun announceWinner(id: Int) {
-        Gdx.app.log("WINNNN", "player $id wins!")
-        if(playerNumber == id) {
-            Gdx.app.log("WINNNN", "YOU WONNN!")
-        }
     }
 }

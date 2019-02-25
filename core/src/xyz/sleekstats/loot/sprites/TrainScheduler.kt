@@ -17,9 +17,7 @@ class TrainScheduler(val playScreen: PlayScreen, var probabilityOfArrivingOutOf1
 
     fun createTrains() {
         val numberOfTrains: Int = (playScreen.viewport.worldWidth / Train.TRAIN_WIDTH).roundToInt() + 1
-        print("createTrains $numberOfTrains ___")
         for (i in 0..numberOfTrains) {
-            print("train $i   ${-i * Train.TRAIN_WIDTH}")
             trains.add(Train(playScreen, -i* Train.TRAIN_WIDTH))
         }
     }

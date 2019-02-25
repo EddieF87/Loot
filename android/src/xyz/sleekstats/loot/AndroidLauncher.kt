@@ -72,12 +72,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         val buf = realTimeMessage.messageData
         val sender = realTimeMessage.senderParticipantId
         when (buf[0].toChar()) {
-            'R' -> {
-                Log.d(TAG + "messR", sender + "  Message received: " + buf[0].toChar() + "/" + buf[1].toInt())
-            }
             'P' -> {
-                Log.d(TAG + "messP", sender + "  Message received: " + buf[0].toChar() +
-                        "/  player " + buf[1].toInt() + " /  collecting " + buf[2].toInt())
                 val pos = buf[1].toInt()
                 val collecting = buf[2].toInt() == 1
                 mGame.movePlayer(pos, collecting)
@@ -86,7 +81,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                 val playerNum = buf[1].toInt()
                 val score = ByteBuffer.wrap(buf).getInt(2)
                 scores[playerNum] = score
-                Log.d(TAG + "messScore", sender + "  Message received! player $playerNum = $score or ${scores[playerNum]}")
                 playerScoresReceived++
                 updateScores()
             }
@@ -98,11 +92,10 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
     fun updateScores() {
         if (playerScoresReceived > 1) { //TODO change later for other sizes
-            if(scores.max() ?: -1 > 15) {
+            if(scores.max() ?: -1 > 150) {
                 val maxId = scores.indices.maxBy { scores[it] } ?: -1
                 mGame.announceWinner(maxId)
             }
-            Log.d(TAG + "messScoreA", "updateScores ${scores[0]} ${scores[1]} ${scores[2]} ${scores[3]}")
             mGame.updateScores(scores)
             playerScoresReceived = 0
         }
@@ -320,7 +313,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         val autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
                 MAX_OPPONENTS, 0)
 
-        mGame.switchWaitScreen()
+        mGame.switchToWaitScreen()
         mCurScreen = Screen.WAIT
 
         keepScreenOn()
@@ -520,7 +513,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
         // create the room
         Log.d(TAG, "Creating room...")
-        mGame.switchWaitScreen()
+        mGame.switchToWaitScreen()
         mCurScreen = Screen.WAIT
 
         keepScreenOn()
@@ -552,23 +545,8 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         }
     }
 
-    // Broadcast round to everybody else.
-    override fun broadcastRound(roundNumber: Int) {
-
-        // First byte in message indicates whether it's a final score or not
-        mMsgBuf[0] = 'R'.toByte()
-
-        mRound = roundNumber
-        // Second byte is the score.
-        mMsgBuf[1] = mRound.toByte()
-
-        // it's an interim score notification, so we can use unreliable
-        mRealTimeMultiplayerClient!!.sendUnreliableMessageToOthers(mMsgBuf, mRoomId!!)
-    }
-
     // Broadcast train arrival to everybody else.
     override fun broadcastTrainArrived(playerNum: Int, playerScore: Float) {
-        Log.d(TAG + "messScore", "Send Message! playerNum = $playerNum  playerScore = $playerScore")
 
         val mMsgScore = ByteArray(6)
         mMsgScore[0] = 'S'.toByte()
@@ -577,7 +555,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
         val x = (playerScore * 10).roundToInt()
         scores[playerNum] = x
-        Log.d(TAG + "messScore", "Send Message! playerNum = $playerNum  playerScore = $playerScore or ${scores[playerNum]}")
         playerScoresReceived++
         sendToAllReliably(mMsgScore)
         updateScores()
@@ -595,13 +572,10 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     }
 
     internal fun sendToAllReliably(message: ByteArray) {
-        Log.d(TAG + "messTs", "sendToAllReliably " + mParticipants!!.size)
         for (participant in mParticipants!!) {
-            Log.d(TAG + "messTs", "send to " + participant.participantId)
             mRealTimeMultiplayerClient!!.sendReliableMessage(message, mRoomId!!, participant.participantId, handleMessageSentCallback)
                     .addOnCompleteListener { task ->
                         // Keep track of which messages are sent, if desired.
-                        Log.d(TAG + "messTs", "onComplete ")
                         recordMessageToken(task.result!!)
                     }
         }
@@ -625,7 +599,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                 .setRoomStatusUpdateCallback(mRoomStatusUpdateCallback)
                 .build()
 
-        mGame.switchWaitScreen()
+        mGame.switchToWaitScreen()
         mCurScreen = Screen.WAIT
 
         keepScreenOn()
@@ -667,7 +641,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                         mRoomId = null
                         mRoomConfig = null
                     }
-            mGame.switchWaitScreen()
+            mGame.switchToWaitScreen()
             mCurScreen = Screen.WAIT
 
         } else {
@@ -769,10 +743,10 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
     internal fun switchToMainScreen() {
         if (mRealTimeMultiplayerClient != null) {
-            mGame.switchMainScreen()
+            mGame.switchToMainScreen()
             mCurScreen = Screen.MAIN
         } else {
-            mGame.switchMainScreen()
+            mGame.switchToMainScreen()
             mCurScreen = Screen.SIGN_IN
         }
     }

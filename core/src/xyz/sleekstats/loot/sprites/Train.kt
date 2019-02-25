@@ -22,10 +22,6 @@ class Train(playScreen: PlayScreen, originX : Float)  : Sprite(Texture("train.pn
         }
     }
 
-    override fun draw(batch: Batch?) {
-        super.draw(batch)
-    }
-
     companion object {
         const val TRAIN_WIDTH = 88F
         const val TRAIN_VELOCITY = 8F

@@ -3,21 +3,25 @@ package xyz.sleekstats.loot
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import xyz.sleekstats.loot.screens.FinishScreen
 import xyz.sleekstats.loot.screens.PlayScreen
 import xyz.sleekstats.loot.screens.WelcomeScreen
 
 class LootGame(val mOnGameListener: OnGameListener) : Game() {
     internal lateinit var batch: SpriteBatch
     var playerNumber = -1
+    private val TAG_LOOT = "loottagg"
+    private var switchToFinish = false
+    private var winner = -1
 
     override fun create() {
-        Gdx.app.log("loottagg", "createGame")
+        Gdx.app.log(TAG_LOOT, "createGame")
         batch = SpriteBatch()
-        setScreen(WelcomeScreen(this))
+        this.setScreen(WelcomeScreen(this))
     }
 
     override fun dispose() {
-        Gdx.app.log("loottagg", "disposeGame")
+        Gdx.app.log(TAG_LOOT, "disposeGame")
         batch.dispose()
     }
 
@@ -32,29 +36,28 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         fun acceptInviteToRoom(mIncomingInvitationId: String);
         fun startQuickGame()
 
-        fun broadcastRound(roundNumber: Int)
-//        fun broadcastTime(time: Float)
-//        fun broadcastScores(scores: List<Float>)
         fun broadcastTrainArrived(playerNumber: Int, playerScore: Float)
         fun broadcastPosition(collecting: Boolean)
     }
 
-    fun switchWaitScreen() { Gdx.app.log("loottagg", "switchWaitScreen") }
-    fun switchMainScreen() { Gdx.app.log("loottagg", "switchMainScreen") }
-    fun switchSignInScreen() { Gdx.app.log("loottagg", "switchSignInScreen") }
+    fun switchToWaitScreen() { Gdx.app.log(TAG_LOOT, "switchToWaitScreen") }
+    fun switchToMainScreen() { Gdx.app.log(TAG_LOOT, "switchToMainScreen") }
+    fun switchToSignInScreen() { Gdx.app.log(TAG_LOOT, "switchToSignInScreen") }
+    fun switchToFinishScreen() {
+        Gdx.app.log(TAG_LOOT, "switchToFinishScreen")
+
+    }
 
     fun startNewGame() {
-        Gdx.app.log("loottagg", "startNewGame")
+        Gdx.app.log(TAG_LOOT, "startNewGame")
 
-//        this.setScreen(PlayScreen(this))
-//        screen.dispose()
         if(this.screen is PlayScreen) {
             (this.screen as PlayScreen).startGame()
         }
     }
 
     fun movePlayer(playerPos: Int, collecting: Boolean) {
-        Gdx.app.log("loottagg", "movePlayer")
+        Gdx.app.log(TAG_LOOT, "movePlayer")
 
         if(this.screen is PlayScreen) {
             (this.screen as PlayScreen).movePlayer(playerPos, collecting)
@@ -63,23 +66,22 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
 
     fun updateScores(scores: IntArray) {
         if(this.screen is PlayScreen) {
+            Gdx.app.log("WINNNN", "updateScores" )
             (this.screen as PlayScreen).updateScores(scores)
+        } else {
+            Gdx.app.log("WINNNN", "dont updateScores" )
         }
     }
 
-
     fun announceWinner(id: Int) {
-        if(this.screen is PlayScreen) {
-            (this.screen as PlayScreen).announceWinner(id)
-        }
+        Gdx.app.log("WINNNN", "announceWinner = $id   You = $playerNumber" )
+        switchToFinish = true
+        winner = id
     }
 
     fun onStartClick() { mOnGameListener.startQuickGame() }
 
-    fun onNewRound(roundNumber: Int) { mOnGameListener.broadcastRound(roundNumber) }
-
     fun onTrainArrived(playerNumber: Int, playerScore: Float) { mOnGameListener.broadcastTrainArrived(playerNumber, playerScore) }
-
 
     fun onPositionUpdate(collecting: Boolean) { mOnGameListener.broadcastPosition(collecting) }
 
@@ -89,5 +91,15 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
 
     fun changeNumber(newNumber : Int) {
         playerNumber = newNumber
+    }
+
+    override fun render() {
+        super.render()
+        if(switchToFinish) {
+            val msg = if (playerNumber == winner) "YOU WIN!!!" else "Player $winner Wins!"
+            this.screen.dispose()
+            this.setScreen(FinishScreen(this, msg))
+            switchToFinish = false
+        }
     }
 }

@@ -51,27 +51,12 @@ public class DesktopLauncher {
 		}
 
 		@Override
-		public void broadcastRound(int roundNumber) {
-
-		}
-
-		@Override
-		public void broadcastTime(float time) {
-
-		}
-
-		@Override
-		public void broadcastScore(float score) {
-
-		}
-
-		@Override
-		public void broadcastTrain(boolean arrived) {
-
-		}
-
-		@Override
 		public void broadcastPosition(boolean collecting) {
+
+		}
+
+		@Override
+		public void broadcastTrainArrived(int playerNumber, float playerScore) {
 
 		}
 	}

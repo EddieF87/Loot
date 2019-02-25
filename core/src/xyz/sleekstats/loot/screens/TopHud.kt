@@ -53,14 +53,8 @@ class TopHud (sb : SpriteBatch) : Disposable {
     }
     fun updateTime(time: Float) {
         timeLabel.setText(String.format("%06d", (time * 10).roundToInt()))
-//        pctLabel.setText(String.format("%02d", pct))
     }
 
-    fun blankMethod(dt: Float) {
-//        println("player die!  ${(round * 10).roundToInt()}")
-//        round = 0F
-//        roundLabel.setText("XXXXXXX")
-    }
 
     override fun dispose() {
         stage.dispose()
