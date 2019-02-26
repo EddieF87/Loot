@@ -43,8 +43,6 @@ class WelcomeScreen(val game: LootGame) : Screen {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 println("Button Pressed")
                 game.onStartClick()
-
-//                game.startNewGame()
                 Gdx.input.inputProcessor = null
                 game.setPlayScreen()
                 dispose()

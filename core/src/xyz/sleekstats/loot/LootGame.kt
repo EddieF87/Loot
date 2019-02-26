@@ -86,6 +86,7 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     fun onPositionUpdate(collecting: Boolean) { mOnGameListener.broadcastPosition(collecting) }
 
     fun setPlayScreen() {
+        this.screen.dispose()
         this.setScreen(PlayScreen(this))
     }
 

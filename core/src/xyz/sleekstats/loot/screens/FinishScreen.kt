@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.viewport.FitViewport
 import xyz.sleekstats.loot.LootGame
 
-class FinishScreen(game: LootGame, msg: String) : Screen {
+class FinishScreen(val game: LootGame, msg: String) : Screen {
 
     private val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, OrthographicCamera())
     private val stage = Stage(viewport, game.batch)
@@ -38,10 +38,19 @@ class FinishScreen(game: LootGame, msg: String) : Screen {
     override fun show() {}
 
     override fun render(delta: Float) {
+        handleInput(delta)
         Gdx.gl.glClearColor(0F, 0F,0F,1F)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         stage.draw()
     }
+
+    private fun handleInput(dt: Float) {
+        if (Gdx.input.justTouched()) {
+            game.onStartClick()
+            game.setPlayScreen()
+        }
+    }
+
 
     override fun pause() {}
     override fun resume() {}
