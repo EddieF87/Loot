@@ -6,6 +6,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import xyz.sleekstats.loot.screens.FinishScreen
 import xyz.sleekstats.loot.screens.PlayScreen
 import xyz.sleekstats.loot.screens.WelcomeScreen
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+
+
 
 class LootGame(val mOnGameListener: OnGameListener) : Game() {
     internal lateinit var batch: SpriteBatch
@@ -13,11 +16,14 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     private val TAG_LOOT = "loottagg"
     private var switchToFinish = false
     private var winner = -1
+    lateinit var mySkin : Skin
 
     override fun create() {
         Gdx.app.log(TAG_LOOT, "createGame")
         batch = SpriteBatch()
+        mySkin = Skin(Gdx.files.internal("skin/comic-ui.json"))
         this.setScreen(WelcomeScreen(this))
+
     }
 
     override fun dispose() {

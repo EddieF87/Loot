@@ -10,8 +10,10 @@ import xyz.sleekstats.loot.LootGame
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
@@ -29,15 +31,22 @@ class WelcomeScreen(val game: LootGame) : Screen {
 
     init {
         Gdx.input.inputProcessor = stage
-        val font = BitmapFont()
-//        val skin = Skin()
+//        val font = BitmapFont()
 //        val buttonAtlas  = TextureAtlas("gnome.pack.txt")
-//        skin.addRegions(buttonImg)
-        val textButtonStyle = TextButtonStyle()
-        textButtonStyle.font = font
-        textButtonStyle.up = TextureRegionDrawable(buttonImg)
-        textButtonStyle.down = TextureRegionDrawable(buttonImg)
-        val button = TextButton("Button1", textButtonStyle)
+//        val textButtonStyle = TextButtonStyle()
+//        textButtonStyle.font = font
+//        textButtonStyle.up = TextureRegionDrawable(buttonImg)
+//        textButtonStyle.down = TextureRegionDrawable(buttonImg)
+        game.mySkin.getFont("button").data.setScale(2f,2f)
+        val button = TextButton("Play Now!", game.mySkin)
+
+
+//        val imageButtonStyle = ImageButton.ImageButtonStyle()
+//        imageButtonStyle.up = TextureRegionDrawable(buttonImg)
+//        imageButtonStyle.down = TextureRegionDrawable(buttonImg)
+//        val button = ImageButton(imageButtonStyle)
+
+
         button.setSize(400F, 400F)
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
