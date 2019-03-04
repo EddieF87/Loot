@@ -5,17 +5,12 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.viewport.FitViewport
 import xyz.sleekstats.loot.LootGame
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle
-import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
 
 class WelcomeScreen(val game: LootGame) : Screen {
@@ -24,29 +19,14 @@ class WelcomeScreen(val game: LootGame) : Screen {
     val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
     val batch = game.batch
     val bg = Texture("bg.png")
-    val buttonImg = Texture("playbtn.png")
-    var bb = false
-    val stage = Stage()
+    private val stage = Stage()
 
 
     init {
         Gdx.input.inputProcessor = stage
-//        val font = BitmapFont()
-//        val buttonAtlas  = TextureAtlas("gnome.pack.txt")
-//        val textButtonStyle = TextButtonStyle()
-//        textButtonStyle.font = font
-//        textButtonStyle.up = TextureRegionDrawable(buttonImg)
-//        textButtonStyle.down = TextureRegionDrawable(buttonImg)
-        game.mySkin.getFont("button").data.setScale(2f,2f)
+        game.mySkin.getFont("button").data.setScale(2f, 2f)
+
         val button = TextButton("Play Now!", game.mySkin)
-
-
-//        val imageButtonStyle = ImageButton.ImageButtonStyle()
-//        imageButtonStyle.up = TextureRegionDrawable(buttonImg)
-//        imageButtonStyle.down = TextureRegionDrawable(buttonImg)
-//        val button = ImageButton(imageButtonStyle)
-
-
         button.setSize(400F, 400F)
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
@@ -64,13 +44,13 @@ class WelcomeScreen(val game: LootGame) : Screen {
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
     }
 
-    fun handleInput(dt: Float) {
+    private fun handleInput(dt: Float) {
         if (Gdx.input.justTouched()) {
             println("handleInput")
         }
     }
 
-    fun update(dt: Float) {
+    private fun update(dt: Float) {
         handleInput(dt)
     }
 
@@ -86,30 +66,23 @@ class WelcomeScreen(val game: LootGame) : Screen {
         update(delta)
         Gdx.gl.glClearColor(1f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-//        if (!bb) {
-            batch.projectionMatrix = camera.combined
-            batch.begin()
-            batch.draw(bg, 0F, 0F, viewport.worldWidth, viewport.worldHeight)
-            batch.end()
-            stage.draw()
-//            return
-//        }
-//        bb = true
+
+        batch.projectionMatrix = camera.combined
+        batch.begin()
+        batch.draw(bg, 0F, 0F, viewport.worldWidth, viewport.worldHeight)
+        batch.end()
+        stage.draw()
     }
 
-    override fun pause() {
-    }
+    override fun pause() {}
 
-    override fun resume() {
-    }
+    override fun resume() {}
 
     override fun resize(width: Int, height: Int) {
         viewport.update(width, height)
     }
 
-    override fun dispose() {
-    }
-
+    override fun dispose() {}
 
 
 }

@@ -92,7 +92,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
     fun updateScores() {
         if (playerScoresReceived > 1) { //TODO change later for other sizes
-            if(scores.max() ?: -1 > 150) {
+            if(scores.max() ?: -1 > SCORE_TO_WIN) {
                 val maxId = scores.indices.maxBy { scores[it] } ?: -1
                 mGame.announceWinner(maxId)
             }
@@ -768,19 +768,16 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     }
 
     companion object {
-
         /*
      * API INTEGRATION SECTION. This section contains the code that integrates
      * the game with the Google Play game services API.
      */
-
         internal val TAG = "LootTAG"
-
         // Request codes for the UIs that we show with startActivityForResult:
         internal val RC_SELECT_PLAYERS = 10000
         internal val RC_INVITATION_INBOX = 10001
         internal val RC_WAITING_ROOM = 10002
-
+        internal val SCORE_TO_WIN = 15
         // Request code used to invoke sign in user interactions.
         private val RC_SIGN_IN = 9001
     }

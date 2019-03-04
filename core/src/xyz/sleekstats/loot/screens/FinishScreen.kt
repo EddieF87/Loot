@@ -1,6 +1,5 @@
 package xyz.sleekstats.loot.screens
 
-import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
@@ -18,16 +17,19 @@ import xyz.sleekstats.loot.LootGame
 
 class FinishScreen(val game: LootGame, msg: String) : Screen {
 
-    private val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, OrthographicCamera())
+    private val camera = OrthographicCamera(LootGame.V_WIDTH, LootGame.V_HEIGHT)
+    private val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
     private val stage = Stage(viewport, game.batch)
+    private val button = TextButton("Play Now!", game.mySkin)
+
 
     init {
         Gdx.input.inputProcessor = stage
         game.mySkin.getFont("button").data.setScale(2f,2f)
-        val button = TextButton("Play Now!", game.mySkin)
 
+        camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
+        button.setPosition(LootGame.V_WIDTH/2 - button.width/2,LootGame.V_HEIGHT/10)
 
-        button.setSize(400F, 400F)
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 println("Button Pressed")
@@ -47,10 +49,7 @@ class FinishScreen(val game: LootGame, msg: String) : Screen {
         table.setFillParent(true)
 
         val gameWinLabel = Label(msg, font)
-        val playAgainLabel = Label("Click to Play Again", font)
         table.add(gameWinLabel).expandX()
-        table.row()
-        table.add(playAgainLabel).expandX().padTop(60F)
         stage.addActor(table)
     }
 
@@ -58,23 +57,17 @@ class FinishScreen(val game: LootGame, msg: String) : Screen {
     override fun show() {}
 
     override fun render(delta: Float) {
-        handleInput(delta)
         Gdx.gl.glClearColor(0F, 0F,0F,1F)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         stage.draw()
     }
 
-    private fun handleInput(dt: Float) {
-        if (Gdx.input.justTouched()) {
-            game.onStartClick()
-            game.setPlayScreen()
-        }
-    }
-
-
     override fun pause() {}
     override fun resume() {}
-    override fun resize(width: Int, height: Int) {}
+
+    override fun resize(width: Int, height: Int) {
+        viewport.update(width, height)
+    }
 
     override fun dispose() {
         stage.dispose()
