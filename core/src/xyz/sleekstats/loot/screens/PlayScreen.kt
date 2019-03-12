@@ -18,7 +18,7 @@ class PlayScreen(val game: LootGame) : Screen {
 
     private val camera = OrthographicCamera(LootGame.V_WIDTH, LootGame.V_HEIGHT)
     val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
-    val batch = game.batch
+    private val batch = game.batch
     val textureAtlas = TextureAtlas("gnome.pack.txt")
 
     val players = Array<Player>()

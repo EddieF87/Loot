@@ -17,17 +17,17 @@ class WelcomeScreen(val game: LootGame) : Screen {
 
     private val camera = OrthographicCamera(LootGame.V_WIDTH, LootGame.V_HEIGHT)
     val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
-    val batch = game.batch
+    private val batch = game.batch
+    private val stage = Stage(viewport, batch)
     val bg = Texture("bg.png")
-    private val stage = Stage()
-
 
     init {
         Gdx.input.inputProcessor = stage
         game.mySkin.getFont("button").data.setScale(2f, 2f)
 
+        camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
         val button = TextButton("Play Now!", game.mySkin)
-        button.setSize(400F, 400F)
+        button.setPosition(LootGame.V_WIDTH/2 - button.width/2,LootGame.V_HEIGHT/10)
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 println("Button Pressed")
@@ -41,7 +41,7 @@ class WelcomeScreen(val game: LootGame) : Screen {
     }
 
     init {
-        camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
+//        camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
     }
 
     private fun handleInput(dt: Float) {
