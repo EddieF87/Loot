@@ -327,9 +327,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     }
 
     internal fun startGame() {
-        Log.d(TAG, "startGame()")
-        //        updateScoreDisplay();
-        //        broadcastScore(false);
         mGame.startNewGame()
         for (participant in mParticipants!!) {
             Log.d(TAG + "par all  ", participant.participantId)
@@ -337,7 +334,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
         Log.d(TAG + "par rand  ", mParticipants!![Random().nextInt(mParticipants!!.size)].participantId)
 
-        Collections.sort(mParticipants) { o1, o2 -> o1.participantId.compareTo(o2.participantId) }
+        mParticipants!!.sortWith(Comparator { o1, o2 -> o1.participantId.compareTo(o2.participantId) })
 
         for (i in mParticipants!!.indices) {
             val participant = mParticipants!![i]
@@ -347,9 +344,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                 mGame.changeNumber(i)
                 Log.d(TAG + "set  ", i.toString() + "  " + participant.participantId)
             }
-        }
-        if (mParticipants!![0].participantId == mMyId) {
-            Toast.makeText(this, "GTEEEEEEEEEEEEEET", Toast.LENGTH_LONG).show()
         }
 
         if (mInvitationsClient != null) {
@@ -468,18 +462,18 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
         } else if (requestCode == RC_WAITING_ROOM) {
             // we got the result from the "waiting room" UI.
-            if (resultCode == Activity.RESULT_OK) {
-                // ready to start playing
-                Log.d(TAG, "Starting game (waiting room returned OK).")
-                startGame()
-            } else if (resultCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
-                // player indicated that they want to leave the room
-                leaveRoom()
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // Dialog was cancelled (user pressed back key, for instance). In our game,
-                // this means leaving the room too. In more elaborate games, this could mean
-                // something else (like minimizing the waiting room UI).
-                leaveRoom()
+            when (resultCode) {
+                Activity.RESULT_OK -> {
+                    // ready to start playing
+                    Log.d(TAG, "Starting game (waiting room returned OK).")
+                    startGame()
+                }
+                GamesActivityResultCodes.RESULT_LEFT_ROOM -> // player indicated that they want to leave the room
+                    leaveRoom()
+                Activity.RESULT_CANCELED -> // Dialog was cancelled (user pressed back key, for instance). In our game,
+                    // this means leaving the room too. In more elaborate games, this could mean
+                    // something else (like minimizing the waiting room UI).
+                    leaveRoom()
             }
         }
         super.onActivityResult(requestCode, resultCode, intent)
@@ -757,15 +751,12 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    // Clears the flag that keeps the screen on.
     internal fun stopKeepingScreenOn() {
         Log.d(TAG, "stopKeepingScreenOn")
         //        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    override fun onClick(id: Int) {
-
-    }
+    override fun onClick(id: Int) {}
 
     companion object {
         /*

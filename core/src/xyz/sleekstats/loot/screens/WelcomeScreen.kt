@@ -33,15 +33,9 @@ class WelcomeScreen(val game: LootGame) : Screen {
                 println("Button Pressed")
                 game.onStartClick()
                 Gdx.input.inputProcessor = null
-                game.setPlayScreen()
-                dispose()
             }
         })
         stage.addActor(button)
-    }
-
-    init {
-//        camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
     }
 
     private fun handleInput(dt: Float) {

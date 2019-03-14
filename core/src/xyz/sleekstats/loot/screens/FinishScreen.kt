@@ -35,8 +35,6 @@ class FinishScreen(val game: LootGame, msg: String) : Screen {
                 println("Button Pressed")
                 Gdx.input.inputProcessor = null
                 game.onStartClick()
-                game.setPlayScreen()
-                dispose()
             }
         })
         stage.addActor(button)

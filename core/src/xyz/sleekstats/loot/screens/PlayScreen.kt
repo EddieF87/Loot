@@ -38,6 +38,7 @@ class PlayScreen(val game: LootGame) : Screen {
         for (i in 1..4) {
             players.add(Player(this, i))
         }
+        startGame()
     }
 
     override fun hide() {}
