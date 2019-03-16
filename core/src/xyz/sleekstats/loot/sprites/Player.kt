@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Array
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.screens.PlayScreen
 
-class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textureAtlas.findRegion("gnome_stand")) {
+class Player(playScreen: PlayScreen, val number: Int, val name: String) : Sprite(playScreen.textureAtlas.findRegion("gnome_stand")) {
 
     private var gnomeStand = TextureRegion(playScreen.textureAtlas.findRegion("gnome_stand"),
             0, 0, 40, 40)
@@ -17,7 +17,7 @@ class Player(playScreen: PlayScreen, val number: Int) : Sprite(playScreen.textur
     var isCollecting = false
     var isSquashed = false
     var totalScoreUpdated = false
-    val posX = (playScreen.viewport.worldWidth / 5) * number - 8
+    val posX = (playScreen.viewport.worldWidth / 4) * number + 8
     var roundScore = 0F
     var totalScore = 0F
     var stateTimer: Float = 0F

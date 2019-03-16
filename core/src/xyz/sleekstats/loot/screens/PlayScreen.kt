@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.FitViewport
-import sun.rmi.runtime.Log
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.sprites.Player
 import xyz.sleekstats.loot.sprites.TrainScheduler
@@ -25,7 +24,7 @@ class PlayScreen(val game: LootGame) : Screen {
     val trainScheduler = TrainScheduler(this, 33)
     val bg = Texture("bg.png")
     private val topHud = TopHud(game.batch)
-    private val bottomHud = BottomHud(game.batch)
+    private val bottomHud = BottomHud(game.batch, game.mySkin, 2)
     private var roundNumber = 1
     private var mTime = 0F
     private var gameStarted = false
@@ -35,9 +34,10 @@ class PlayScreen(val game: LootGame) : Screen {
 
     init {
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
-        for (i in 1..4) {
-            players.add(Player(this, i))
+        for (i in 0..1) {
+            players.add(Player(this, i, game.names[i%2]))
         }
+        bottomHud.updatePlayerNames(players)
         startGame()
     }
 
@@ -136,7 +136,6 @@ class PlayScreen(val game: LootGame) : Screen {
     }
 
     fun updateScores(scores: IntArray) {
-        Gdx.app.log("messscbr", "screen updateScores")
         timeToUpdateTrains = true
         bottomHud.updateScoresFromBroadcast(scores)
     }
@@ -148,7 +147,6 @@ class PlayScreen(val game: LootGame) : Screen {
     override fun pause() {}
     override fun resume() {}
     override fun dispose() {
-        Gdx.app.log("WINNNN", "playscreen dispose")
         nextRound()
         gameStarted = false
         topHud.dispose()

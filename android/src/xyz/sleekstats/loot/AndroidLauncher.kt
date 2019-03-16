@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.backends.android.AndroidApplication
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -45,7 +46,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     internal var mRoomConfig: RoomConfig? = null
 
     // The participants in the currently active game
-    internal var mParticipants: ArrayList<Participant>? = null
+    internal var mParticipants: ArrayList<Participant> = ArrayList()
 
     // My participant ID in the currently active game
     internal var mMyId: String? = null
@@ -54,10 +55,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     // invitation listener
     internal var mIncomingInvitationId: String? = null
 
-    // Message buffer for sending messages
-    internal var mMsgBuf = ByteArray(2)
-    internal var mRound = 1
-
     private var mGame = LootGame(this)
     private var playerNumber: Int = 0
 
@@ -65,7 +62,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
     private val msgScores = ByteArray(15)
     init { msgScores[0] = 'S'.toByte() }
-    val scores = intArrayOf(0, 0, 0, 0)
+    lateinit var scores : IntArray
     var playerScoresReceived = 0
 
     internal var mOnRealTimeMessageReceivedListener: OnRealTimeMessageReceivedListener = OnRealTimeMessageReceivedListener { realTimeMessage ->
@@ -150,12 +147,12 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
             Log.d(TAG, "onConnectedToRoom.")
 
             //get participants and my ID:
-            mParticipants = room?.participants
-            mMyId = room?.getParticipantId(mPlayerId)
+            mParticipants = room?.participants!!
+            mMyId = room.getParticipantId(mPlayerId)
 
             // save room ID if its not initialized in onRoomCreated() so we can leave cleanly before the game starts.
             if (mRoomId == null) {
-                mRoomId = room?.roomId
+                mRoomId = room.roomId
             }
 
             // print out the list of participants (for debug purposes)
@@ -273,7 +270,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate()")
         val config = AndroidApplicationConfiguration()
-//        mGame = LootGame(this)
         initialize(mGame, config)
         mGoogleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
         startSignInIntent()
@@ -327,17 +323,21 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     }
 
     internal fun startGame() {
+        scores = IntArray(mParticipants.size)
         mGame.startNewGame()
-        for (participant in mParticipants!!) {
+        for (participant in mParticipants) {
             Log.d(TAG + "par all  ", participant.participantId)
         }
 
-        Log.d(TAG + "par rand  ", mParticipants!![Random().nextInt(mParticipants!!.size)].participantId)
+        Log.d(TAG + "par rand  ", mParticipants[Random().nextInt(mParticipants.size)].participantId)
 
-        mParticipants!!.sortWith(Comparator { o1, o2 -> o1.participantId.compareTo(o2.participantId) })
+       mParticipants.sortWith(Comparator { o1, o2 -> o1.participantId.compareTo(o2.participantId) })
 
-        for (i in mParticipants!!.indices) {
-            val participant = mParticipants!![i]
+
+        mGame.updatePlayerNames(mParticipants.map { it.displayName })
+
+        for (i in mParticipants.indices) {
+            val participant = mParticipants[i]
             Log.d(TAG + "par sort  ", participant.participantId)
             if (participant.participantId == mMyId) {
                 playerNumber = i
@@ -566,7 +566,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     }
 
     internal fun sendToAllReliably(message: ByteArray) {
-        for (participant in mParticipants!!) {
+        for (participant in mParticipants) {
             mRealTimeMultiplayerClient!!.sendReliableMessage(message, mRoomId!!, participant.participantId, handleMessageSentCallback)
                     .addOnCompleteListener { task ->
                         // Keep track of which messages are sent, if desired.
@@ -731,7 +731,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         }
         if (mParticipants != null) {
             Log.d(TAG, "updateRoom mParticipants != null")
-            //            updatePeerScoresDisplay();
         }
     }
 

@@ -19,6 +19,7 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     private var switchToWelcome = false
     private var winner = -1
     lateinit var mySkin : Skin
+    var names = listOf<String>()
 
     override fun create() {
         Gdx.app.log(TAG_LOOT, "createGame")
@@ -79,8 +80,14 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     fun onPositionUpdate(collecting: Boolean) { mOnGameListener.broadcastPosition(collecting) }
 
     fun changeNumber(newNumber : Int) {
+        Gdx.app.log("NUMNUMNUMCHANGE", "changeNumber = $playerNumber to $newNumber")
         playerNumber = newNumber
     }
+
+    fun updatePlayerNames(newNames: List<String>) {
+        names = newNames
+    }
+
 
     override fun render() {
         super.render()
