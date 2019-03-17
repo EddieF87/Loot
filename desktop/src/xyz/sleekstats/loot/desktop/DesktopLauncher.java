@@ -47,7 +47,7 @@ public class DesktopLauncher {
 
 		@Override
 		public void startQuickGame() {
-			mGame.startNewGame();
+			mGame.startNewGame(0);
 		}
 
 		@Override

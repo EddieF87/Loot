@@ -34,8 +34,8 @@ class PlayScreen(val game: LootGame) : Screen {
 
     init {
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
-        for (i in 0..1) {
-            players.add(Player(this, i, game.names[i%2]))
+        for (i in 0 until game.numberOfPlayers) {
+            players.add(Player(this, i, game.names[i], game.numberOfPlayers))
         }
         bottomHud.updatePlayerNames(players)
         startGame()

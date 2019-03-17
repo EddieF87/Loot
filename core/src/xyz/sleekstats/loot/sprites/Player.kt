@@ -8,16 +8,24 @@ import com.badlogic.gdx.utils.Array
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.screens.PlayScreen
 
-class Player(playScreen: PlayScreen, val number: Int, val name: String) : Sprite(playScreen.textureAtlas.findRegion("gnome_stand")) {
+class Player(playScreen: PlayScreen, number: Int, val name: String, numOfPlayers: Int) : Sprite(playScreen.textureAtlas.findRegion("gnome_stand")) {
 
+    companion object {
+        const val GNOME_REGION_WIDTH = 40
+        const val GNOME_REGION_HEIGHT = 40
+        const val GNOME_BOUNDS_WIDTH = 70
+        const val GNOME_BOUNDS_HEIGHT = 70
+    }
     private var gnomeStand = TextureRegion(playScreen.textureAtlas.findRegion("gnome_stand"),
-            0, 0, 40, 40)
+            0, 0, GNOME_REGION_WIDTH, GNOME_REGION_HEIGHT)
     private var gnomeDig : Animation<TextureRegion>
     private var gnomeSquash : Animation<TextureRegion>
     var isCollecting = false
     var isSquashed = false
     var totalScoreUpdated = false
-    val posX = (playScreen.viewport.worldWidth / 4) * number + 8
+    val posX = (playScreen.viewport.worldWidth / numOfPlayers) * number + 
+            (playScreen.viewport.worldWidth / numOfPlayers - GNOME_BOUNDS_WIDTH) / 2
+    val posY = LootGame.V_HEIGHT / 4
     var roundScore = 0F
     var totalScore = 0F
     var stateTimer: Float = 0F
@@ -25,20 +33,22 @@ class Player(playScreen: PlayScreen, val number: Int, val name: String) : Sprite
     init {
         val frames = Array<TextureRegion>()
         for (i in 0..1) {
-            frames.add(TextureRegion(playScreen.textureAtlas.findRegion("gnome_dig"), i * 40, 0, 40, 40))
+            frames.add(TextureRegion(playScreen.textureAtlas.findRegion("gnome_dig"),
+                    i * GNOME_REGION_WIDTH, 0, GNOME_REGION_WIDTH, GNOME_REGION_HEIGHT))
         }
         gnomeDig = Animation(.3f, frames)
         frames.clear()
 
 
         for (i in 0..1) {
-            frames.add(TextureRegion(playScreen.textureAtlas.findRegion("gnome_squash"), i * 40, 0, 40, 40))
+            frames.add(TextureRegion(playScreen.textureAtlas.findRegion("gnome_squash"),
+                    i * GNOME_REGION_WIDTH, 0, GNOME_REGION_WIDTH, GNOME_REGION_HEIGHT))
         }
         gnomeSquash = Animation(.4f, frames)
         frames.clear()
 
 
-        setBounds(posX , LootGame.V_HEIGHT / 4 -8, 70F, 70F)
+        setBounds(posX , posY , 70F, 70F)
         setRegion(gnomeStand)
     }
 
@@ -100,11 +110,11 @@ class Player(playScreen: PlayScreen, val number: Int, val name: String) : Sprite
 
     fun setCollecting() {
         isCollecting = true
-        setPosition(posX, LootGame.V_HEIGHT /2 - height/2)
+        setPosition(posX, posY * 2)
     }
     fun setNotCollecting() {
         isCollecting = false
         stateTimer = 0F
-        setPosition(posX, LootGame.V_HEIGHT /4 - height/2)
+        setPosition(posX, posY)
     }
 }

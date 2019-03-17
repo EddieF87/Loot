@@ -324,7 +324,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
     internal fun startGame() {
         scores = IntArray(mParticipants.size)
-        mGame.startNewGame()
+        mGame.startNewGame(mParticipants.size)
         for (participant in mParticipants) {
             Log.d(TAG + "par all  ", participant.participantId)
         }

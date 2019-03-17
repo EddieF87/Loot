@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 class LootGame(val mOnGameListener: OnGameListener) : Game() {
     internal lateinit var batch: SpriteBatch
     var playerNumber = -1
+    var numberOfPlayers = 0
     private val TAG_LOOT = "loottagg"
     private var switchToFinish = false
     private var switchToPlay = false
@@ -22,7 +23,6 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     var names = listOf<String>()
 
     override fun create() {
-        Gdx.app.log(TAG_LOOT, "createGame")
         batch = SpriteBatch()
         mySkin = Skin(Gdx.files.internal("skin/comic-ui.json"))
         this.setScreen(WelcomeScreen(this))
@@ -30,7 +30,6 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     }
 
     override fun dispose() {
-        Gdx.app.log(TAG_LOOT, "disposeGame")
         batch.dispose()
     }
 
@@ -53,7 +52,10 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
 
     fun switchToMainScreen() { switchToWelcome = true }
 
-    fun startNewGame() { switchToPlay = true }
+    fun startNewGame(participants : Int) {
+        numberOfPlayers = participants
+        switchToPlay = true
+    }
 
     fun announceWinner(id: Int) {
         switchToFinish = true
@@ -80,7 +82,6 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     fun onPositionUpdate(collecting: Boolean) { mOnGameListener.broadcastPosition(collecting) }
 
     fun changeNumber(newNumber : Int) {
-        Gdx.app.log("NUMNUMNUMCHANGE", "changeNumber = $playerNumber to $newNumber")
         playerNumber = newNumber
     }
 
