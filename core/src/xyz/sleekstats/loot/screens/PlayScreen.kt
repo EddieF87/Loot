@@ -22,7 +22,7 @@ class PlayScreen(val game: LootGame) : Screen {
 
     val players = Array<Player>()
     val trainScheduler = TrainScheduler(this, 33)
-    val bg = Texture("bg.png")
+    val bg = Texture("mountains_snowy.png")
     private val topHud = TopHud(game.batch)
     private val bottomHud = BottomHud(game.batch, game.mySkin, 2)
     private var roundNumber = 1

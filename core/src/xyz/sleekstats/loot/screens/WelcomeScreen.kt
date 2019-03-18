@@ -2,11 +2,13 @@ package xyz.sleekstats.loot.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.viewport.FitViewport
@@ -19,15 +21,23 @@ class WelcomeScreen(val game: LootGame) : Screen {
     val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
     private val batch = game.batch
     private val stage = Stage(viewport, batch)
-    val bg = Texture("bg.png")
+    val bg = Texture("mountains_snowy.png")
+    private val table = Table()
 
     init {
         Gdx.input.inputProcessor = stage
+
+        table.setFillParent(true)
         game.mySkin.getFont("button").data.setScale(2f, 2f)
+        game.mySkin.getFont("title").data.setScale(2f, 2f)
 
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
         val button = TextButton("Play Now!", game.mySkin)
-        button.setPosition(LootGame.V_WIDTH/2 - button.width/2,LootGame.V_HEIGHT/10)
+        table.add(com.badlogic.gdx.scenes.scene2d.ui.Label("LOOT!", game.mySkin, "title", Color.RED))
+        table.row()
+        table.add(button).center()
+        table.debug = true
+//        button.setPosition(LootGame.V_WIDTH/2 - button.width/2,LootGame.V_HEIGHT/10)
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
                 println("Button Pressed")
@@ -35,7 +45,7 @@ class WelcomeScreen(val game: LootGame) : Screen {
                 Gdx.input.inputProcessor = null
             }
         })
-        stage.addActor(button)
+        stage.addActor(table)
     }
 
     private fun handleInput(dt: Float) {
