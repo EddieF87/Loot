@@ -6,8 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
-import android.widget.Toast
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.backends.android.AndroidApplication
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -119,6 +117,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
             //                            getString(R.string.is_inviting_you));
 
             Log.d(TAG, "show popup!  " + invitation.inviter.displayName)
+            mGame.showInvitedDialog()
         }
 
         override fun onInvitationRemoved(invitationId: String) {
@@ -306,8 +305,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         // quick-start a game with 1 randomly selected opponent
         val MIN_OPPONENTS = 1
         val MAX_OPPONENTS = 1
-        val autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
-                MAX_OPPONENTS, 0)
+        val autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS, MAX_OPPONENTS, 0)
 
         mGame.switchToWaitScreen()
         mCurScreen = Screen.WAIT
@@ -428,7 +426,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                 .show()
     }
 
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent) {
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
 
         if (requestCode == RC_SIGN_IN) {
 
@@ -453,12 +451,16 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
         } else if (requestCode == RC_SELECT_PLAYERS) {
             // we got the result from the "select players" UI -- ready to create the room
-            handleSelectPlayersResult(resultCode, intent)
+            if (intent != null) {
+                handleSelectPlayersResult(resultCode, intent)
+            }
 
         } else if (requestCode == RC_INVITATION_INBOX) {
             // we got the result from the "select invitation" UI (invitation inbox). We're
             // ready to accept the selected invitation:
-            handleInvitationInboxResult(resultCode, intent)
+            if (intent != null) {
+                handleInvitationInboxResult(resultCode, intent)
+            }
 
         } else if (requestCode == RC_WAITING_ROOM) {
             // we got the result from the "waiting room" UI.
@@ -521,9 +523,17 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         Log.d(TAG, "Room created, waiting for it to be ready...")
     }
 
+    override fun acceptInvite() {
+        Log.d(TAG, "acceptInvite")
+
+//        val intent = Intent()
+//        handleInvitationInboxResult(Activity.RESULT_OK, )
+    }
+
     // Handle the result of the invitation inbox UI, where the player can pick an invitation
     // to accept. We react by accepting the selected invitation, if any.
     private fun handleInvitationInboxResult(response: Int, data: Intent) {
+        Log.d(TAG, "handleInvitationInboxResult")
         if (response != Activity.RESULT_OK) {
             Log.w(TAG, "*** invitation inbox UI cancelled, $response")
             switchToMainScreen()
@@ -699,7 +709,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                         }
                     }
                 }
-                .addOnFailureListener(createFailureListener("There was a problem getting the activation hint!"))
+                .addOnFailureListener(createFailureListener(TAG + "There was a problem getting the activation hint!"))
     }
 
     private fun createFailureListener(string: String): OnFailureListener {
@@ -756,6 +766,14 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     }
 
     override fun onClick(id: Int) {}
+
+    override fun invitePlayers() {
+
+        // show list of invitable players
+        mRealTimeMultiplayerClient?.getSelectOpponentsIntent(1, 3)
+                ?.addOnSuccessListener { intent -> startActivityForResult(intent, RC_SELECT_PLAYERS) }
+                ?.addOnFailureListener(createFailureListener("There was a problem selecting opponents."))
+    }
 
     companion object {
         /*

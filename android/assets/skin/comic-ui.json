@@ -3,6 +3,9 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	button: {
 		file: font-button-export.fnt
 	}
+	button2: {
+		file: font-button-export.fnt
+	}
 	font: {
 		file: font-export.fnt
 	}

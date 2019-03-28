@@ -14,38 +14,69 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.viewport.FitViewport
 import xyz.sleekstats.loot.LootGame
 
-
-class WelcomeScreen(val game: LootGame) : Screen {
+class WelcomeScreen(val game: LootGame) : Screen, InvitedDialog.InviteHandler {
 
     private val camera = OrthographicCamera(LootGame.V_WIDTH, LootGame.V_HEIGHT)
-    val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
+    private val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
     private val batch = game.batch
     private val stage = Stage(viewport, batch)
-    val bg = Texture("mountains_snowy.png")
+    private val bg = Texture("mountains_snowy.png")
     private val table = Table()
+    private val invitedDialog = InvitedDialog("End Game", game.mySkin, this)
+
 
     init {
         Gdx.input.inputProcessor = stage
 
         table.setFillParent(true)
-        game.mySkin.getFont("button").data.setScale(2f, 2f)
         game.mySkin.getFont("title").data.setScale(2f, 2f)
 
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
-        val button = TextButton("Play Now!", game.mySkin)
+        val playNowButton = TextButton("Play Now!", game.mySkin)
+        val inviteButton = TextButton("Invite Players", game.mySkin)
+
+//        invitedDialog = object : Dialog("End Game", game.mySkin) {
+//            override fun result(choice: Any) {
+//                println("Option: $choice")
+//                if (choice as Boolean) {
+//                    Gdx.app.log("loottie", "Button Pressed 1")
+//                } else {
+//                    Gdx.app.log("loottie", "Button Pressed 2")
+//                }
+//                invitedDialog.hide()
+//            }
+//        }
+        invitedDialog.text(com.badlogic.gdx.scenes.scene2d.ui.Label("NEW INVITE!", game.mySkin, "button", Color.RED))
+        invitedDialog.button("ACCEPT", true);
+        invitedDialog.button("DECLINE", false);
+
         table.add(com.badlogic.gdx.scenes.scene2d.ui.Label("LOOT!", game.mySkin, "title", Color.RED))
         table.row()
-        table.add(button).center()
+        table.add(playNowButton)
+        table.row()
+        table.add(inviteButton)
         table.debug = true
-//        button.setPosition(LootGame.V_WIDTH/2 - button.width/2,LootGame.V_HEIGHT/10)
-        button.addListener(object : ChangeListener() {
+
+        playNowButton.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
-                println("Button Pressed")
+                Gdx.app.log("loottie", "playNowButton Pressed")
                 game.onStartClick()
                 Gdx.input.inputProcessor = null
             }
         })
+        inviteButton.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent, actor: Actor) {
+                Gdx.app.log("loottie", "inviteButton Pressed")
+                game.onInviteClick()
+                Gdx.input.inputProcessor = null
+            }
+        })
+
         stage.addActor(table)
+    }
+
+    fun showInvitedDialog() {
+        invitedDialog.show(stage)
     }
 
     private fun handleInput(dt: Float) {
@@ -75,6 +106,7 @@ class WelcomeScreen(val game: LootGame) : Screen {
         batch.begin()
         batch.draw(bg, 0F, 0F, viewport.worldWidth, viewport.worldHeight)
         batch.end()
+        stage.act(delta)
         stage.draw()
     }
 
@@ -89,4 +121,10 @@ class WelcomeScreen(val game: LootGame) : Screen {
     override fun dispose() {}
 
 
+    override fun inviteAccepted() {
+        Gdx.app.log("loottie", "inviteAccepted")
+    }
+    override fun inviteDeclined() {
+        Gdx.app.log("loottie", "inviteDeclined")
+    }
 }

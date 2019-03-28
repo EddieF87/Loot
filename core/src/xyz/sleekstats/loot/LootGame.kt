@@ -43,9 +43,10 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         fun signOut()
         fun acceptInviteToRoom(mIncomingInvitationId: String);
         fun startQuickGame()
-
+        fun invitePlayers()
         fun broadcastTrainArrived(playerNumber: Int, playerScore: Float)
         fun broadcastPosition(collecting: Boolean)
+        fun acceptInvite()
     }
 
     fun switchToWaitScreen() { Gdx.app.log(TAG_LOOT, "switchToWaitScreen") }
@@ -74,8 +75,14 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         }
     }
 
+    fun showInvitedDialog() {
+        if (this.screen is WelcomeScreen) {
+            (this.screen as WelcomeScreen).showInvitedDialog()
+        }
+    }
 
     fun onStartClick() { mOnGameListener.startQuickGame() }
+    fun onInviteClick() { mOnGameListener.invitePlayers() }
 
     fun onTrainArrived(playerNumber: Int, playerScore: Float) { mOnGameListener.broadcastTrainArrived(playerNumber, playerScore) }
 
