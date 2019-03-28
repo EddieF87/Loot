@@ -46,10 +46,12 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         fun invitePlayers()
         fun broadcastTrainArrived(playerNumber: Int, playerScore: Float)
         fun broadcastPosition(collecting: Boolean)
-        fun acceptInvite()
     }
 
-    fun switchToWaitScreen() { Gdx.app.log(TAG_LOOT, "switchToWaitScreen") }
+    fun switchToWaitScreen() {
+        Gdx.input.inputProcessor = null
+        Gdx.app.log(TAG_LOOT, "switchToWaitScreen")
+    }
 
     fun switchToMainScreen() { switchToWelcome = true }
 
@@ -72,12 +74,6 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     fun updateScores(scores: IntArray) {
         if(this.screen is PlayScreen) {
             (this.screen as PlayScreen).updateScores(scores)
-        }
-    }
-
-    fun showInvitedDialog() {
-        if (this.screen is WelcomeScreen) {
-            (this.screen as WelcomeScreen).showInvitedDialog()
         }
     }
 
@@ -110,6 +106,11 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
                 this.screen.dispose()
                 this.setScreen(PlayScreen(this))
                 switchToPlay = false
+            }
+            switchToWelcome -> {
+                this.screen.dispose()
+                this.setScreen(WelcomeScreen(this))
+                switchToWelcome = false
             }
             switchToWelcome -> {
                 this.screen.dispose()

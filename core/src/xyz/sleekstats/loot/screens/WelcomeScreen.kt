@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.viewport.FitViewport
 import xyz.sleekstats.loot.LootGame
 
-class WelcomeScreen(val game: LootGame) : Screen, InvitedDialog.InviteHandler {
+class WelcomeScreen(val game: LootGame) : Screen {
 
     private val camera = OrthographicCamera(LootGame.V_WIDTH, LootGame.V_HEIGHT)
     private val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
@@ -22,7 +22,6 @@ class WelcomeScreen(val game: LootGame) : Screen, InvitedDialog.InviteHandler {
     private val stage = Stage(viewport, batch)
     private val bg = Texture("mountains_snowy.png")
     private val table = Table()
-    private val invitedDialog = InvitedDialog("End Game", game.mySkin, this)
 
 
     init {
@@ -34,21 +33,6 @@ class WelcomeScreen(val game: LootGame) : Screen, InvitedDialog.InviteHandler {
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
         val playNowButton = TextButton("Play Now!", game.mySkin)
         val inviteButton = TextButton("Invite Players", game.mySkin)
-
-//        invitedDialog = object : Dialog("End Game", game.mySkin) {
-//            override fun result(choice: Any) {
-//                println("Option: $choice")
-//                if (choice as Boolean) {
-//                    Gdx.app.log("loottie", "Button Pressed 1")
-//                } else {
-//                    Gdx.app.log("loottie", "Button Pressed 2")
-//                }
-//                invitedDialog.hide()
-//            }
-//        }
-        invitedDialog.text(com.badlogic.gdx.scenes.scene2d.ui.Label("NEW INVITE!", game.mySkin, "button", Color.RED))
-        invitedDialog.button("ACCEPT", true);
-        invitedDialog.button("DECLINE", false);
 
         table.add(com.badlogic.gdx.scenes.scene2d.ui.Label("LOOT!", game.mySkin, "title", Color.RED))
         table.row()
@@ -73,10 +57,6 @@ class WelcomeScreen(val game: LootGame) : Screen, InvitedDialog.InviteHandler {
         })
 
         stage.addActor(table)
-    }
-
-    fun showInvitedDialog() {
-        invitedDialog.show(stage)
     }
 
     private fun handleInput(dt: Float) {
@@ -119,12 +99,4 @@ class WelcomeScreen(val game: LootGame) : Screen, InvitedDialog.InviteHandler {
     }
 
     override fun dispose() {}
-
-
-    override fun inviteAccepted() {
-        Gdx.app.log("loottie", "inviteAccepted")
-    }
-    override fun inviteDeclined() {
-        Gdx.app.log("loottie", "inviteDeclined")
-    }
 }

@@ -20,6 +20,7 @@ import com.google.android.gms.games.multiplayer.Multiplayer
 import com.google.android.gms.games.multiplayer.Participant
 import com.google.android.gms.games.multiplayer.realtime.*
 import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.ArrayList
@@ -59,8 +60,12 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     private var mCurScreen: Screen? = null
 
     private val msgScores = ByteArray(15)
-    init { msgScores[0] = 'S'.toByte() }
-    lateinit var scores : IntArray
+
+    init {
+        msgScores[0] = 'S'.toByte()
+    }
+
+    lateinit var scores: IntArray
     var playerScoresReceived = 0
 
     internal var mOnRealTimeMessageReceivedListener: OnRealTimeMessageReceivedListener = OnRealTimeMessageReceivedListener { realTimeMessage ->
@@ -87,7 +92,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
     fun updateScores() {
         if (playerScoresReceived > 1) { //TODO change later for other sizes
-            if(scores.max() ?: -1 > SCORE_TO_WIN) {
+            if (scores.max() ?: -1 > SCORE_TO_WIN) {
                 val maxId = scores.indices.maxBy { scores[it] } ?: -1
                 mGame.announceWinner(maxId)
             }
@@ -110,14 +115,11 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     private val mInvitationCallback = object : InvitationCallback() {
         // Called when we get an invitation to play a game. We react by showing that to the user.
         override fun onInvitationReceived(invitation: Invitation) {
-
             mIncomingInvitationId = invitation.invitationId
-            //   TODO:     ((TextView) findViewById(R.id.incoming_invitation_text)).setText(
-            //                    invitation.getInviter().getDisplayName() + " " +
-            //                            getString(R.string.is_inviting_you));
-
-            Log.d(TAG, "show popup!  " + invitation.inviter.displayName)
-            mGame.showInvitedDialog()
+            mGame.switchToWaitScreen()
+            mInvitationsClient?.invitationInboxIntent
+                    ?.addOnSuccessListener { intent -> startActivityForResult(intent, RC_INVITATION_INBOX) }
+                    ?.addOnFailureListener(createFailureListener("There was a problem getting the inbox."))
         }
 
         override fun onInvitationRemoved(invitationId: String) {
@@ -329,8 +331,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
         Log.d(TAG + "par rand  ", mParticipants[Random().nextInt(mParticipants.size)].participantId)
 
-       mParticipants.sortWith(Comparator { o1, o2 -> o1.participantId.compareTo(o2.participantId) })
-
+        mParticipants.sortWith(Comparator { o1, o2 -> o1.participantId.compareTo(o2.participantId) })
 
         mGame.updatePlayerNames(mParticipants.map { it.displayName })
 
@@ -351,14 +352,14 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
 
     fun startSignInIntent() {
-        startActivityForResult(mGoogleSignInClient!!.signInIntent, RC_SIGN_IN)
+        startActivityForResult(mGoogleSignInClient?.signInIntent, RC_SIGN_IN)
     }
 
 
     fun signInSilently() {
         Log.d(TAG, "signInSilently()")
 
-        mGoogleSignInClient!!.silentSignIn().addOnCompleteListener(this
+        mGoogleSignInClient?.silentSignIn()?.addOnCompleteListener(this
         ) { task ->
             if (task.isSuccessful) {
                 Log.d(TAG, "signInSilently(): success")
@@ -373,14 +374,13 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     override fun signOut() {
         Log.d(TAG, "signOut()")
 
-        mGoogleSignInClient!!.signOut().addOnCompleteListener(this
+        mGoogleSignInClient?.signOut()?.addOnCompleteListener(this
         ) { task ->
             if (task.isSuccessful) {
                 Log.d(TAG, "signOut(): success")
             } else {
                 handleException(task.exception, "signOut() failed!")
             }
-
             onDisconnected()
         }
     }
@@ -519,15 +519,8 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
                 .setOnMessageReceivedListener(mOnRealTimeMessageReceivedListener)
                 .setRoomStatusUpdateCallback(mRoomStatusUpdateCallback)
                 .setAutoMatchCriteria(autoMatchCriteria).build()
-        mRealTimeMultiplayerClient!!.create(mRoomConfig!!)
+        mRealTimeMultiplayerClient?.create(mRoomConfig!!)
         Log.d(TAG, "Room created, waiting for it to be ready...")
-    }
-
-    override fun acceptInvite() {
-        Log.d(TAG, "acceptInvite")
-
-//        val intent = Intent()
-//        handleInvitationInboxResult(Activity.RESULT_OK, )
     }
 
     // Handle the result of the invitation inbox UI, where the player can pick an invitation
@@ -541,7 +534,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         }
 
         Log.d(TAG, "Invitation inbox UI succeeded.")
-        val invitation = data.extras!!.getParcelable<Invitation>(Multiplayer.EXTRA_INVITATION)
+        val invitation = data.extras?.getParcelable<Invitation>(Multiplayer.EXTRA_INVITATION)
 
         // accept invitation
         if (invitation != null) {
@@ -768,7 +761,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     override fun onClick(id: Int) {}
 
     override fun invitePlayers() {
-
         // show list of invitable players
         mRealTimeMultiplayerClient?.getSelectOpponentsIntent(1, 3)
                 ?.addOnSuccessListener { intent -> startActivityForResult(intent, RC_SELECT_PLAYERS) }
