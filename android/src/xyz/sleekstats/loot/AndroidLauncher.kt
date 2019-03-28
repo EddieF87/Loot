@@ -291,9 +291,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         Log.d(TAG, "onPause()")
 
         // unregister our listeners.  They will be re-registered via onResume->signInSilently->onConnected.
-        if (mInvitationsClient != null) {
-            mInvitationsClient!!.unregisterInvitationCallback(mInvitationCallback)
-        }
+        mInvitationsClient?.unregisterInvitationCallback(mInvitationCallback)
     }
 
 
@@ -345,9 +343,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
             }
         }
 
-        if (mInvitationsClient != null) {
-            mInvitationsClient!!.unregisterInvitationCallback(mInvitationCallback)
-        }
+        mInvitationsClient?.unregisterInvitationCallback(mInvitationCallback)
     }
 
 
