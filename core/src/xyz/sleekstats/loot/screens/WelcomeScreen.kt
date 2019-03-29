@@ -98,5 +98,7 @@ class WelcomeScreen(val game: LootGame) : Screen {
         viewport.update(width, height)
     }
 
-    override fun dispose() {}
+    override fun dispose() {
+        stage.dispose()
+    }
 }

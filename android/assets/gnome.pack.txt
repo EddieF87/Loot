@@ -24,3 +24,10 @@ gnome_stand
   orig: 40, 40
   offset: 0, 0
   index: -1
+gnome_win
+  rotate: false
+  xy: 40, 80
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1

@@ -19,10 +19,10 @@ class PlayScreen(val game: LootGame) : Screen {
     val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
     private val batch = game.batch
     val textureAtlas = TextureAtlas("gnome.pack.txt")
+    private val bg = Texture("mountains_snowy.png")
 
-    val players = Array<Player>()
-    val trainScheduler = TrainScheduler(this, 33)
-    val bg = Texture("mountains_snowy.png")
+    private val players = Array<Player>()
+    private val trainScheduler = TrainScheduler(this, 33)
     private val topHud = TopHud(game.batch)
     private val bottomHud = BottomHud(game.batch, game.mySkin, 2)
     private var roundNumber = 1

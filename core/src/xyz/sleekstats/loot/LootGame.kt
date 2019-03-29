@@ -7,7 +7,7 @@ import xyz.sleekstats.loot.screens.FinishScreen
 import xyz.sleekstats.loot.screens.PlayScreen
 import xyz.sleekstats.loot.screens.WelcomeScreen
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-
+import xyz.sleekstats.loot.screens.WaitScreen
 
 
 class LootGame(val mOnGameListener: OnGameListener) : Game() {
@@ -18,6 +18,7 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     private var switchToFinish = false
     private var switchToPlay = false
     private var switchToWelcome = false
+    private var switchToWait = false
     private var winner = -1
     lateinit var mySkin : Skin
     var names = listOf<String>()
@@ -26,7 +27,6 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         batch = SpriteBatch()
         mySkin = Skin(Gdx.files.internal("skin/comic-ui.json"))
         this.setScreen(WelcomeScreen(this))
-
     }
 
     override fun dispose() {
@@ -50,10 +50,11 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
 
     fun switchToWaitScreen() {
         Gdx.input.inputProcessor = null
+        switchToWait = true
         Gdx.app.log(TAG_LOOT, "switchToWaitScreen")
     }
 
-    fun switchToMainScreen() { switchToWelcome = true }
+    fun switchToWelcomeScreen() { switchToWelcome = true }
 
     fun startNewGame(participants : Int) {
         numberOfPlayers = participants
@@ -112,10 +113,10 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
                 this.setScreen(WelcomeScreen(this))
                 switchToWelcome = false
             }
-            switchToWelcome -> {
+            switchToWait -> {
                 this.screen.dispose()
-                this.setScreen(WelcomeScreen(this))
-                switchToWelcome = false
+                this.setScreen(WaitScreen(this))
+                switchToWait = false
             }
         }
     }

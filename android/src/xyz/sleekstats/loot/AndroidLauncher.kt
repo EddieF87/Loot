@@ -20,7 +20,6 @@ import com.google.android.gms.games.multiplayer.Multiplayer
 import com.google.android.gms.games.multiplayer.Participant
 import com.google.android.gms.games.multiplayer.realtime.*
 import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.ArrayList
@@ -447,8 +446,21 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
 
         } else if (requestCode == RC_SELECT_PLAYERS) {
             // we got the result from the "select players" UI -- ready to create the room
-            if (intent != null) {
-                handleSelectPlayersResult(resultCode, intent)
+
+            when (resultCode) {
+                Activity.RESULT_OK -> {
+                    // ready to start playing
+                    Log.d(TAG, "Starting game (waiting room returned OK).")
+                    if (intent != null) {
+                        handleSelectPlayersResult(resultCode, intent)
+                    }
+                }
+                GamesActivityResultCodes.RESULT_LEFT_ROOM -> // player indicated that they want to leave the room
+                    leaveRoom()
+                Activity.RESULT_CANCELED -> // Dialog was cancelled (user pressed back key, for instance). In our game,
+                    // this means leaving the room too. In more elaborate games, this could mean
+                    // something else (like minimizing the waiting room UI).
+                    leaveRoom()
             }
 
         } else if (requestCode == RC_INVITATION_INBOX) {
@@ -629,8 +641,8 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         Log.d(TAG, "Leaving room.")
         stopKeepingScreenOn()
         if (mRoomId != null) {
-            mRealTimeMultiplayerClient!!.leave(mRoomConfig!!, mRoomId!!)
-                    .addOnCompleteListener {
+            mRealTimeMultiplayerClient?.leave(mRoomConfig!!, mRoomId!!)
+                    ?.addOnCompleteListener {
                         mRoomId = null
                         mRoomConfig = null
                     }
@@ -734,13 +746,12 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     }
 
     internal fun switchToMainScreen() {
-        if (mRealTimeMultiplayerClient != null) {
-            mGame.switchToMainScreen()
-            mCurScreen = Screen.MAIN
+        mCurScreen = if (mRealTimeMultiplayerClient != null) {
+            Screen.MAIN
         } else {
-            mGame.switchToMainScreen()
-            mCurScreen = Screen.SIGN_IN
+            Screen.SIGN_IN
         }
+        mGame.switchToWelcomeScreen()
     }
 
 
@@ -757,6 +768,10 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     override fun onClick(id: Int) {}
 
     override fun invitePlayers() {
+
+        mGame.switchToWaitScreen()
+        mCurScreen = Screen.WAIT
+
         // show list of invitable players
         mRealTimeMultiplayerClient?.getSelectOpponentsIntent(1, 3)
                 ?.addOnSuccessListener { intent -> startActivityForResult(intent, RC_SELECT_PLAYERS) }
