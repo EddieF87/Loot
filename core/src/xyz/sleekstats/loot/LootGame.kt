@@ -98,7 +98,7 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         super.render()
         when {
             switchToFinish -> {
-                val msg = if (playerNumber == winner) "YOU WIN!!!" else "Player $winner Wins!"
+                val msg = if (playerNumber == winner) "YOU WIN!!!" else "${names[winner]} Wins!"
                 this.screen.dispose()
                 this.setScreen(FinishScreen(this, msg))
                 switchToFinish = false

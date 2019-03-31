@@ -740,9 +740,6 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         if (room != null) {
             mParticipants = room.participants
         }
-        if (mParticipants != null) {
-            Log.d(TAG, "updateRoom mParticipants != null")
-        }
     }
 
     internal fun switchToMainScreen() {

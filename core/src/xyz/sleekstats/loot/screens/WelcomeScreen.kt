@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
@@ -34,7 +35,7 @@ class WelcomeScreen(val game: LootGame) : Screen {
         val playNowButton = TextButton("Play Now!", game.mySkin)
         val inviteButton = TextButton("Invite Players", game.mySkin)
 
-        table.add(com.badlogic.gdx.scenes.scene2d.ui.Label("LOOT!", game.mySkin, "title", Color.RED))
+        table.add(Label("LOOT!", game.mySkin, "title", Color.RED))
         table.row()
         table.add(playNowButton)
         table.row()

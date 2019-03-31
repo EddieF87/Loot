@@ -43,16 +43,16 @@ class FinishScreen(val game: LootGame, msg: String) : Screen {
             }
         })
 
-        val font = Label.LabelStyle(BitmapFont(), Color.WHITE)
         val table = Table()
         table.center()
         table.setFillParent(true)
 
-        val testImg = Image(gnomeWin)
-        val gameWinLabel = Label(msg, font)
-        table.add(testImg).grow()
+        val gnomeWinImg = Image(gnomeWin)
+        val gameWinLabel = Label(msg, game.mySkin, "button", Color.WHITE)
+
+        table.add(gnomeWinImg).grow()
         table.row()
-        table.add(gameWinLabel).grow()
+        table.add(gameWinLabel).expandX().growY()
         table.row()
         table.add(button)
         table.debug = true
