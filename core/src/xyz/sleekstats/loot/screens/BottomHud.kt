@@ -1,7 +1,5 @@
 package xyz.sleekstats.loot.screens
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -12,13 +10,8 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import sun.audio.AudioPlayer.player
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.sprites.Player
-import kotlin.math.roundToInt
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
-import com.badlogic.gdx.graphics.g2d.BitmapFont
-import java.awt.SystemColor.text
 
 
 class BottomHud(sb: SpriteBatch, skin: Skin, numOfPlayers: Int) : Disposable {
@@ -57,8 +50,6 @@ class BottomHud(sb: SpriteBatch, skin: Skin, numOfPlayers: Int) : Disposable {
 
     init {
         val colWidth = viewport.worldWidth / numOfPlayers - TOTAL_SPACING / numOfPlayers
-        Gdx.app.log("vtgy", "viewport.screenWidth = ${viewport.screenWidth}    colWidth = $colWidth")
-        Gdx.app.log("vtgy", "viewport.worldWidth = ${viewport.worldWidth}    colWidth = $colWidth")
 
         val spaceSize = TOTAL_SPACING / (numOfPlayers + 1).toFloat()
 

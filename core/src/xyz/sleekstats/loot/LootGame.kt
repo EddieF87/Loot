@@ -44,7 +44,7 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         fun acceptInviteToRoom(mIncomingInvitationId: String);
         fun startQuickGame()
         fun invitePlayers()
-        fun broadcastTrainArrived(playerNumber: Int, playerScore: Float)
+        fun broadcastTrainArrived(playerPosition: Int, playerScore: Float)
         fun broadcastPosition(collecting: Boolean)
     }
 
@@ -81,7 +81,7 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
     fun onStartClick() { mOnGameListener.startQuickGame() }
     fun onInviteClick() { mOnGameListener.invitePlayers() }
 
-    fun onTrainArrived(playerNumber: Int, playerScore: Float) { mOnGameListener.broadcastTrainArrived(playerNumber, playerScore) }
+    fun onTrainArrived(playerPosition: Int, playerScore: Float) { mOnGameListener.broadcastTrainArrived(playerPosition, playerScore) }
 
     fun onPositionUpdate(collecting: Boolean) { mOnGameListener.broadcastPosition(collecting) }
 
@@ -98,9 +98,10 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         super.render()
         when {
             switchToFinish -> {
-                val msg = if (playerNumber == winner) "YOU WIN!!!" else "${names[winner]} Wins!"
+                val playerWon = playerNumber == winner
+                val msg = if (playerWon) "YOU WIN!!!" else "${names[winner]} Wins!"
                 this.screen.dispose()
-                this.setScreen(FinishScreen(this, msg))
+                this.setScreen(FinishScreen(this, msg, playerWon))
                 switchToFinish = false
             }
             switchToPlay -> {

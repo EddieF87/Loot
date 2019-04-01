@@ -551,15 +551,15 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
     }
 
     // Broadcast train arrival to everybody else.
-    override fun broadcastTrainArrived(playerNum: Int, playerScore: Float) {
+    override fun broadcastTrainArrived(playerPosition: Int, playerScore: Float) {
 
         val mMsgScore = ByteArray(6)
         mMsgScore[0] = 'S'.toByte()
-        mMsgScore[1] = playerNum.toByte()
+        mMsgScore[1] = playerPosition.toByte()
         ByteBuffer.wrap(mMsgScore).putInt(2, (playerScore * 10).roundToInt())
 
         val x = (playerScore * 10).roundToInt()
-        scores[playerNum] = x
+        scores[playerPosition] = x
         playerScoresReceived++
         sendToAllReliably(mMsgScore)
         updateScores()

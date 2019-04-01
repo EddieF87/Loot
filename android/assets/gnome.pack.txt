@@ -31,3 +31,10 @@ gnome_win
   orig: 40, 40
   offset: 0, 0
   index: -1
+gnome_lose
+  rotate: false
+  xy: 0, 120
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1

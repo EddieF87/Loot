@@ -5,7 +5,6 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Actor
@@ -19,21 +18,26 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import xyz.sleekstats.loot.LootGame
 import xyz.sleekstats.loot.sprites.Player
 
-class FinishScreen(val game: LootGame, msg: String) : Screen {
+class FinishScreen(val game: LootGame, msg: String, val playerWon: Boolean) : Screen {
 
     private val camera = OrthographicCamera(LootGame.V_WIDTH, LootGame.V_HEIGHT)
     private val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
     private val stage = Stage(viewport, game.batch)
     private val button = TextButton("Play Again", game.mySkin)
     val textureAtlas = TextureAtlas("gnome.pack.txt")
-    private var gnomeWin = TextureRegion(textureAtlas.findRegion("gnome_win"),
-            0, 0, Player.GNOME_REGION_WIDTH, Player.GNOME_REGION_HEIGHT)
+
+    private var gnomeFinishImage: TextureRegion = if (playerWon) {
+        TextureRegion(textureAtlas.findRegion("gnome_win"), 0, 0, Player.GNOME_REGION_WIDTH, Player.GNOME_REGION_HEIGHT)
+    } else {
+        TextureRegion(textureAtlas.findRegion("gnome_lose"), 0, 0, Player.GNOME_REGION_WIDTH, Player.GNOME_REGION_HEIGHT)
+    }
+
 
     init {
         Gdx.input.inputProcessor = stage
 
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
-        button.setPosition(LootGame.V_WIDTH/2 - button.width/2,LootGame.V_HEIGHT/10)
+        button.setPosition(LootGame.V_WIDTH / 2 - button.width / 2, LootGame.V_HEIGHT / 10)
 
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent, actor: Actor) {
@@ -47,7 +51,7 @@ class FinishScreen(val game: LootGame, msg: String) : Screen {
         table.center()
         table.setFillParent(true)
 
-        val gnomeWinImg = Image(gnomeWin)
+        val gnomeWinImg = Image(gnomeFinishImage)
         val gameWinLabel = Label(msg, game.mySkin, "button", Color.WHITE)
 
         table.add(gnomeWinImg).grow()
@@ -63,7 +67,7 @@ class FinishScreen(val game: LootGame, msg: String) : Screen {
     override fun show() {}
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0F, 0F,0F,1F)
+        Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         stage.draw()
     }
