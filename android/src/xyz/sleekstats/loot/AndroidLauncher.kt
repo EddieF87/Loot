@@ -618,7 +618,7 @@ class AndroidLauncher : AndroidApplication(), LootGame.OnGameListener {
         Log.d(TAG, "onStop")
         leaveRoom()
         stopKeepingScreenOn()
-        switchToMainScreen()
+//        switchToMainScreen()
         super.onStop()
     }
 

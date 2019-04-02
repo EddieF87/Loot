@@ -1,11 +1,14 @@
 package xyz.sleekstats.loot.screens
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.FitViewport
 import xyz.sleekstats.loot.LootGame
@@ -13,7 +16,7 @@ import xyz.sleekstats.loot.sprites.Player
 import xyz.sleekstats.loot.sprites.TrainScheduler
 
 
-class PlayScreen(val game: LootGame) : Screen {
+class PlayScreen(val game: LootGame) : Screen, QuitDialog.QuitHandler {
 
     private val camera = OrthographicCamera(LootGame.V_WIDTH, LootGame.V_HEIGHT)
     val viewport = FitViewport(LootGame.V_WIDTH, LootGame.V_HEIGHT, camera)
@@ -31,6 +34,33 @@ class PlayScreen(val game: LootGame) : Screen {
     private var timeToUpdateTrains = false
     private var timeTrainsHaveRan = 0F
     private var playerNumber = game.playerNumber
+    private val stage = Stage(viewport, batch)
+    private var quitDialogShown = false
+    private var hideQuitDialog = false
+    private val quitDialog = QuitDialog("Quit Game", game.mySkin, this)
+
+    init {
+        Gdx.input.inputProcessor = stage
+        quitDialog.text(com.badlogic.gdx.scenes.scene2d.ui.Label("Quit game?", game.mySkin, "button", Color.RED))
+        quitDialog.button("Quit", true);
+        quitDialog.button("Cancel", false);
+    }
+
+
+    override fun quitConfirmed() {
+        Gdx.app.log("loottie", "BquitConfirmed")
+        Gdx.input.isCatchBackKey = false
+        hideQuitDialog = true
+//        quitDialog.hide()
+        Gdx.app.exit()
+    }
+
+    override fun quitCancelled() {
+        Gdx.app.log("loottie", "quitCancelled")
+        hideQuitDialog = true
+//        quitDialog.hide()
+        quitDialogShown = false
+    }
 
     init {
         camera.position.set((viewport.worldWidth / 2), (viewport.worldHeight / 2), 0F)
@@ -39,6 +69,7 @@ class PlayScreen(val game: LootGame) : Screen {
         }
         bottomHud.updatePlayerNames(players)
         startGame()
+        Gdx.input.isCatchBackKey = true
     }
 
     override fun hide() {}
@@ -59,11 +90,18 @@ class PlayScreen(val game: LootGame) : Screen {
         trainScheduler.drawTrains(batch)
         batch.end()
 
+        if(hideQuitDialog) {
+            quitDialog.hide()
+            hideQuitDialog = false
+        }
+        stage.act()
+        stage.draw()
         topHud.stage.draw()
         bottomHud.stage.draw()
     }
 
     private fun handleInput(dt: Float) {
+
         if (playerNumber < 0) {
             playerNumber = game.playerNumber
 
@@ -71,7 +109,11 @@ class PlayScreen(val game: LootGame) : Screen {
                 return
             }
         }
-
+        if (Gdx.input.isKeyPressed(Input.Keys.BACK) && !quitDialogShown) {
+            quitDialogShown = true
+            Gdx.app.log("loottie", "BACK")
+            quitDialog.show(stage)
+        }
         if (Gdx.input.justTouched() && !trainScheduler.trainArrived) {
             val collecting = players[playerNumber].transformPlayer()
             game.onPositionUpdate(collecting)
@@ -112,7 +154,7 @@ class PlayScreen(val game: LootGame) : Screen {
 
             if (timeToUpdateTrains) {
                 timeTrainsHaveRan += dt
-                if(timeTrainsHaveRan > 5F) {
+                if (timeTrainsHaveRan > 5F) {
                     nextRound()
                 }
             }
@@ -151,6 +193,7 @@ class PlayScreen(val game: LootGame) : Screen {
         gameStarted = false
         topHud.dispose()
         bottomHud.dispose()
+        stage.dispose()
     }
 
     fun startGame() {

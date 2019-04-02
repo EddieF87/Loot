@@ -93,7 +93,6 @@ class LootGame(val mOnGameListener: OnGameListener) : Game() {
         names = newNames
     }
 
-
     override fun render() {
         super.render()
         when {
